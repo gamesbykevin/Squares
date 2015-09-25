@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import com.gamesbykevin.androidframework.resources.Audio;
 
 import com.gamesbykevin.squaro.assets.Assets;
+import com.gamesbykevin.squaro.board.Board;
 import com.gamesbykevin.squaro.game.controller.Controller;
 
 import com.gamesbykevin.squaro.screen.MainScreen;
@@ -43,10 +44,29 @@ public class Game implements IGame
         Easy
     }
     
+    /**
+     * The size of the board
+     */
+    public enum Size
+    {
+        Small,
+        Medium,
+        Large,
+        VeryLarge
+    }
+    
+    //the board where gameplay will take place
+    private Board board;
+    
     public Game(final MainScreen screen, final Mode mode, final Difficulty difficulty) throws Exception
     {
         //our main screen object reference
         this.screen = screen;
+        
+        //create a new board
+        this.board = new Board();
+        
+        this.board.reset(Board.SIZE_VERY_LARGE, Board.SIZE_VERY_LARGE, Board.DIFFICULTY_RANGE_EASY);
         
         //setup the game mode
         switch (mode)
@@ -60,6 +80,15 @@ public class Game implements IGame
         
         //create new controller
         this.controller = new Controller(this);
+    }
+    
+    /**
+     * Get the board
+     * @return The game board where play happens
+     */
+    private Board getBoard()
+    {
+        return this.board;
     }
     
     /**
@@ -107,7 +136,15 @@ public class Game implements IGame
      */
     public void updateMotionEvent(final MotionEvent event, final float x, final float y)
     {
-        getController().updateMotionEvent(event, x, y);
+        //if no event was applied to the controller
+        if (!getController().updateMotionEvent(event, x, y))
+        {
+            //if the board exists and the action is up
+            if (getBoard() != null && event.getAction() == MotionEvent.ACTION_UP)
+            {
+                getBoard().update(x, y);
+            }
+        }
     }
     
     /**
@@ -139,5 +176,8 @@ public class Game implements IGame
         //draw the game controller
         if (getController() != null)
             getController().render(canvas);
+        
+        if (getBoard() != null)
+            getBoard().render(canvas);
     }
 }

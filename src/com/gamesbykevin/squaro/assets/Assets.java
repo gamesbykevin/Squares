@@ -40,7 +40,16 @@ public class Assets
      */
     public enum ImageKey
     {
-        
+        Background, 
+        Button,
+        CancelDisabled, CancelEnabled,
+        ConfirmDisabled, ConfirmEnabled,
+        Fill, 
+        Logo,
+        MenuDisabled, MenuEnabled,
+        NumbersGreen, NumbersRed,
+        PauseDisabled, PauseEnabled, 
+        SoundDisabled, SoundEnabled,
     }
     
     /**

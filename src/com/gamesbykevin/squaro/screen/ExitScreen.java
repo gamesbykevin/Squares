@@ -14,6 +14,7 @@ import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.androidframework.screen.Screen;
 import com.gamesbykevin.squaro.assets.Assets;
 import com.gamesbykevin.squaro.panel.GamePanel;
+import java.util.HashMap;
 
 /**
  * The exit screen, when the player wants to go back to the menu
@@ -35,8 +36,8 @@ public class ExitScreen implements Screen, Disposable
     //object to paint background
     private Paint paint;
     
-    //the button to confirm or cancel
-    private Button exitConfirm, exitCancel;
+    //all of the buttons for the player to control
+    private HashMap<Assets.ImageKey, Button> buttons;
     
     public ExitScreen(final MainScreen screen)
     {
@@ -46,7 +47,7 @@ public class ExitScreen implements Screen, Disposable
         //create paint text object
         this.paint = new Paint();
         this.paint.setColor(Color.WHITE);
-        this.paint.setTextSize(48f);
+        this.paint.setTextSize(36F);
         this.paint.setTypeface(Font.getFont(Assets.FontKey.Default));
         
         //create temporary rectangle
@@ -60,16 +61,33 @@ public class ExitScreen implements Screen, Disposable
         pixelH = tmp.height();
         
         //create buttons
-        //this.exitCancel  = new Button(Images.getImage(Assets.ImageKey.ExitCancel));
-        //this.exitConfirm = new Button(Images.getImage(Assets.ImageKey.ExitConfirm));
+        this.buttons = new HashMap<Assets.ImageKey, Button>();
+        this.buttons.put(Assets.ImageKey.CancelDisabled, new Button(Images.getImage(Assets.ImageKey.CancelDisabled)));
+        this.buttons.put(Assets.ImageKey.CancelEnabled, new Button(Images.getImage(Assets.ImageKey.CancelEnabled)));
+        this.buttons.put(Assets.ImageKey.ConfirmDisabled, new Button(Images.getImage(Assets.ImageKey.ConfirmDisabled)));
+        this.buttons.put(Assets.ImageKey.ConfirmEnabled, new Button(Images.getImage(Assets.ImageKey.ConfirmEnabled)));
+        
+        //position
+        final int x = 50;
+        final int y = 450;
         
         //position buttons
-        this.exitCancel.setX(670);
-        this.exitCancel.setY(875);
-        this.exitCancel.updateBounds();
-        this.exitConfirm.setX(190);
-        this.exitConfirm.setY(875);
-        this.exitConfirm.updateBounds();
+        this.buttons.get(Assets.ImageKey.ConfirmDisabled).setX(x);
+        this.buttons.get(Assets.ImageKey.ConfirmDisabled).setY(y);
+        this.buttons.get(Assets.ImageKey.ConfirmEnabled).setX(x);
+        this.buttons.get(Assets.ImageKey.ConfirmEnabled).setY(y);
+        this.buttons.get(Assets.ImageKey.CancelDisabled).setX(x + 273);
+        this.buttons.get(Assets.ImageKey.CancelDisabled).setY(y);
+        this.buttons.get(Assets.ImageKey.CancelEnabled).setX(x + 273);
+        this.buttons.get(Assets.ImageKey.CancelEnabled).setY(y);
+        
+        //adjust the dimensions of each image
+        for (Button button : buttons.values())
+        {
+            button.setWidth(button.getWidth() / 2);
+            button.setHeight(button.getHeight() / 2);
+            button.updateBounds();
+        }
     }
     
     @Override
@@ -77,7 +95,7 @@ public class ExitScreen implements Screen, Disposable
     {
         if (event.getAction() == MotionEvent.ACTION_UP)
         {
-            if (this.exitCancel.contains(x, y))
+            if (buttons.get(Assets.ImageKey.CancelEnabled).contains(x, y))
             {
                 //if cancel, go back to game
                 screen.setState(MainScreen.State.Running);
@@ -85,7 +103,7 @@ public class ExitScreen implements Screen, Disposable
                 //play sound effect
                 //Audio.play(Assets.AudioKey.SettingChange);
             }
-            else if (this.exitConfirm.contains(x, y))
+            else if (buttons.get(Assets.ImageKey.ConfirmEnabled).contains(x, y))
             {
                 //if confirm, go back to menu
                 screen.setState(MainScreen.State.Ready);
@@ -119,24 +137,36 @@ public class ExitScreen implements Screen, Disposable
             canvas.drawText(MESSAGE, x, y, paint);
         }
         
-        //render buttons
-        this.exitConfirm.render(canvas);
-        this.exitCancel.render(canvas);
+        switch (screen.getState())
+        {
+            case Paused:
+                buttons.get(Assets.ImageKey.ConfirmDisabled).render(canvas);
+                buttons.get(Assets.ImageKey.CancelDisabled).render(canvas);
+                break;
+                
+            default:
+                buttons.get(Assets.ImageKey.ConfirmEnabled).render(canvas);
+                buttons.get(Assets.ImageKey.CancelEnabled).render(canvas);
+                break;
+        }
     }
     
     @Override
     public void dispose()
     {
-        if (exitConfirm != null)
+        if (buttons != null)
         {
-            exitConfirm.dispose();
-            exitConfirm = null;
-        }
-        
-        if (exitCancel != null)
-        {
-            exitCancel.dispose();
-            exitCancel = null;
+            for (Button button : buttons.values())
+            {
+                if (button != null)
+                {
+                    button.dispose();
+                    button = null;
+                }
+            }
+            
+            buttons.clear();
+            buttons = null;
         }
         
         if (paint != null)

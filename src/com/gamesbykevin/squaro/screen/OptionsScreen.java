@@ -54,11 +54,10 @@ public class OptionsScreen implements Screen, Disposable
         final int x = 230;
         int y = 350;
         
-        /*
         //add audio option
         this.sounds = new ArrayList<Button>();
-        this.sounds.add(new Button(Images.getImage(Assets.ImageKey.SettingsSoundOff)));
-        this.sounds.add(new Button(Images.getImage(Assets.ImageKey.SettingsSoundOn)));
+        this.sounds.add(new Button(Images.getImage(Assets.ImageKey.Button)));
+        this.sounds.add(new Button(Images.getImage(Assets.ImageKey.Button)));
         
         for (Button button : sounds)
         {
@@ -69,9 +68,9 @@ public class OptionsScreen implements Screen, Disposable
         
         //add buttons
         this.difficulties = new ArrayList<Button>();
-        this.difficulties.add(new Button(Images.getImage(Assets.ImageKey.SettingsDifficulty0)));
-        this.difficulties.add(new Button(Images.getImage(Assets.ImageKey.SettingsDifficulty1)));
-        this.difficulties.add(new Button(Images.getImage(Assets.ImageKey.SettingsDifficulty2)));
+        this.difficulties.add(new Button(Images.getImage(Assets.ImageKey.Button)));
+        this.difficulties.add(new Button(Images.getImage(Assets.ImageKey.Button)));
+        this.difficulties.add(new Button(Images.getImage(Assets.ImageKey.Button)));
         
         y += 200;
         for (Button button : difficulties)
@@ -83,9 +82,9 @@ public class OptionsScreen implements Screen, Disposable
         
         //add buttons
         this.modes = new ArrayList<Button>();
-        this.modes.add(new Button(Images.getImage(Assets.ImageKey.SettingsMode0)));
-        this.modes.add(new Button(Images.getImage(Assets.ImageKey.SettingsMode1)));
-        this.modes.add(new Button(Images.getImage(Assets.ImageKey.SettingsMode2)));
+        this.modes.add(new Button(Images.getImage(Assets.ImageKey.Button)));
+        this.modes.add(new Button(Images.getImage(Assets.ImageKey.Button)));
+        this.modes.add(new Button(Images.getImage(Assets.ImageKey.Button)));
         
         y += 200;
         for (Button button : modes)
@@ -97,11 +96,10 @@ public class OptionsScreen implements Screen, Disposable
         
         y += 200;
         //the back button
-        this.back = new Button(Images.getImage(Assets.ImageKey.SettingsBack));
+        this.back = new Button(Images.getImage(Assets.ImageKey.Button));
         this.back.setX(x);
         this.back.setY(y);
         this.back.updateBounds();
-        */
     }
     
     @Override
@@ -205,7 +203,7 @@ public class OptionsScreen implements Screen, Disposable
     public void render(final Canvas canvas) throws Exception
     {
         //draw main logo
-        canvas.drawBitmap(logo, 104, 100, null);
+        //canvas.drawBitmap(logo, 104, 100, null);
         
         //draw the menu buttons
         difficulties.get(this.indexDifficulty).render(canvas);

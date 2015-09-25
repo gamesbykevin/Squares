@@ -49,25 +49,24 @@ public class GameoverScreen implements Screen, Disposable
         final int x = 230;
         int y = 375;
         final int addY = 200;
-        /*
+
         //create our buttons
-        this.restart = new Button(Images.getImage(Assets.ImageKey.GameoverRestart));
+        this.restart = new Button(Images.getImage(Assets.ImageKey.Button));
         this.restart.setX(x);
         this.restart.setY(y);
         this.restart.updateBounds();
         
         y += addY;
-        this.mainmenu = new Button(Images.getImage(Assets.ImageKey.GameoverMainmenu));
+        this.mainmenu = new Button(Images.getImage(Assets.ImageKey.Button));
         this.mainmenu.setX(x);
         this.mainmenu.setY(y);
         this.mainmenu.updateBounds();
         
         y += addY;
-        this.exitgame = new Button(Images.getImage(Assets.ImageKey.GameoverExit));
+        this.exitgame = new Button(Images.getImage(Assets.ImageKey.Button));
         this.exitgame.setX(x);
         this.exitgame.setY(y);
         this.exitgame.updateBounds();
-        */
     }
     
     /**

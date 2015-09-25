@@ -15,14 +15,14 @@ public class MainActivity extends Activity
     private GamePanel panel;
     
     /**
-     * Our website address where more games can be found
+     * Our web site address where more games can be found
      */
     public static final String WEBPAGE_MORE_GAMES_URL = "http://gamesbykevin.com";
 
     /**
      * The web address where this game can be rated
      */
-    public static final String WEBPAGE_RATE_URL = "https://play.google.com/store/apps/details?id=com.gamesbykevin.fallingblocks";
+    public static final String WEBPAGE_RATE_URL = "https://play.google.com/store/apps/details?id=com.gamesbykevin.squaro";
 
     /**
      * The url that contains the instructions for the game

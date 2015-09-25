@@ -2,6 +2,8 @@ package com.gamesbykevin.squaro.screen;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.MotionEvent;
 
 import com.gamesbykevin.androidframework.awt.Button;
@@ -12,6 +14,8 @@ import com.gamesbykevin.androidframework.screen.Screen;
 import com.gamesbykevin.squaro.MainActivity;
 import com.gamesbykevin.squaro.assets.Assets;
 
+import java.util.HashMap;
+
 /**
  * Our main menu
  * @author ABRAHAM
@@ -21,62 +25,94 @@ public class MenuScreen implements Screen, Disposable
     //the logo
     private final Bitmap logo;
     
-    //the buttons in our menu
-    private Button start, exit, settings, instructions, more, rate;
-    
     //our main screen reference
     private final MainScreen screen;
+    
+    //the buttons on the menu screen
+    private HashMap<Key, Button> buttons;
+    
+    //object used to define font metrics
+    private Paint paint;
+    
+    private enum Key
+    {
+        Start, Exit, Settings, Instructions, More, Rate
+    }
     
     public MenuScreen(final MainScreen screen)
     {
         //store reference to the logo
-        this.logo = Images.getImage(null);
+        this.logo = Images.getImage(Assets.ImageKey.Logo);
         
         //store our screen reference
         this.screen = screen;
         
-        /*
-        final int x = 230;
-        int y = 350;
+        //create a new hashmap
+        this.buttons = new HashMap<Key, Button>();
         
-        final int addY = 200;
+        //temp button
+        Button tmp;
         
-        //create buttons
-        this.start = new Button(Images.getImage(Assets.ImageKey.MenuStart));
-        this.start.setX(x);
-        this.start.setY(y);
-        this.start.updateBounds();
+        int y = 75;
+        final int incrementY = 100;
+        final int x = 110;
         
-        y += addY;
-        this.settings = new Button(Images.getImage(Assets.ImageKey.MenuSettings));
-        this.settings.setX(x);
-        this.settings.setY(y);
-        this.settings.updateBounds();
+        y += incrementY;
+        tmp = new Button(Images.getImage(Assets.ImageKey.Button));
+        tmp.setX(x);
+        tmp.setY(y);
+        tmp.setText("Begin Game");
+        this.buttons.put(Key.Start, tmp);
         
-        y += addY;
-        this.instructions = new Button(Images.getImage(Assets.ImageKey.MenuInstructions));
-        this.instructions.setX(x);
-        this.instructions.setY(y);
-        this.instructions.updateBounds();
+        y += incrementY;
+        tmp = new Button(Images.getImage(Assets.ImageKey.Button));
+        tmp.setX(x);
+        tmp.setY(y);
+        tmp.setText("Options");
+        this.buttons.put(Key.Settings, tmp);
         
-        y += addY;
-        this.rate = new Button(Images.getImage(Assets.ImageKey.MenuRate));
-        this.rate.setX(x);
-        this.rate.setY(y);
-        this.rate.updateBounds();
+        y += incrementY;
+        tmp = new Button(Images.getImage(Assets.ImageKey.Button));
+        tmp.setX(x);
+        tmp.setY(y);
+        tmp.setText("Instuctions");
+        this.buttons.put(Key.Instructions, tmp);
         
-        y += addY;
-        this.more = new Button(Images.getImage(Assets.ImageKey.MenuMore));
-        this.more.setX(x);
-        this.more.setY(y);
-        this.more.updateBounds();
+        y += incrementY;
+        tmp = new Button(Images.getImage(Assets.ImageKey.Button));
+        tmp.setX(x);
+        tmp.setY(y);
+        tmp.setText("Rate this App");
+        this.buttons.put(Key.Rate, tmp);
         
-        y += addY;
-        this.exit = new Button(Images.getImage(Assets.ImageKey.MenuExit));
-        this.exit.setX(x);
-        this.exit.setY(y);
-        this.exit.updateBounds();
-        */
+        y += incrementY;
+        tmp = new Button(Images.getImage(Assets.ImageKey.Button));
+        tmp.setX(x);
+        tmp.setY(y);
+        tmp.setText("More Games");
+        this.buttons.put(Key.More, tmp);
+        
+        y += incrementY;
+        tmp = new Button(Images.getImage(Assets.ImageKey.Button));
+        tmp.setX(x);
+        tmp.setY(y);
+        tmp.setText("Exit Game");
+        this.buttons.put(Key.Exit, tmp);
+        
+        //create new paint object
+        this.paint = new Paint();
+        
+        //set the text size
+        this.paint.setTextSize(24f);
+        
+        //set the color
+        this.paint.setColor(Color.WHITE);
+        
+        for (Button button : buttons.values())
+        {
+            button.updateBounds();
+            button.positionText(paint);
+        }
     }
     
     @Override
@@ -84,7 +120,7 @@ public class MenuScreen implements Screen, Disposable
     {
         if (event.getAction() == MotionEvent.ACTION_UP)
         {
-            if (start.contains(x, y))
+            if (buttons.get(Key.Start).contains(x, y))
             {
                 //play sound effect
                 //Audio.play(Assets.AudioKey.SettingChange);
@@ -95,7 +131,7 @@ public class MenuScreen implements Screen, Disposable
                 //create the game
                 screen.createGame();
             }
-            else if (settings.contains(x, y))
+            else if (buttons.get(Key.Settings).contains(x, y))
             {
                 //play sound effect
                 //Audio.play(Assets.AudioKey.SettingChange);
@@ -103,15 +139,15 @@ public class MenuScreen implements Screen, Disposable
                 //set the state
                 screen.setState(MainScreen.State.Options);
             }
-            else if (instructions.contains(x, y))
+            else if (buttons.get(Key.Instructions).contains(x, y))
             {
                 //play sound effect
                 //Audio.play(Assets.AudioKey.SettingChange);
                 
                 //go to instructions
-                //this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_GAME_INSTRUCTIONS_URL);
+                this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_GAME_INSTRUCTIONS_URL);
             }
-            else if (rate.contains(x, y))
+            else if (buttons.get(Key.Rate).contains(x, y))
             {
                 //play sound effect
                 //Audio.play(Assets.AudioKey.SettingChange);
@@ -119,15 +155,15 @@ public class MenuScreen implements Screen, Disposable
                 //go to web page
                 //this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_RATE_URL);
             }
-            else if (more.contains(x, y))
+            else if (buttons.get(Key.More).contains(x, y))
             {
                 //play sound effect
                 //Audio.play(Assets.AudioKey.SettingChange);
                 
                 //go to web page
-                //this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_MORE_GAMES_URL);
+                this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_MORE_GAMES_URL);
             }
-            else if (exit.contains(x, y))
+            else if (buttons.get(Key.Exit).contains(x, y))
             {
                 //play sound effect
                 //Audio.play(Assets.AudioKey.SettingChange);
@@ -151,54 +187,37 @@ public class MenuScreen implements Screen, Disposable
     public void render(final Canvas canvas) throws Exception
     {
         //draw main logo
-        canvas.drawBitmap(logo, 104, 100, null);
+        canvas.drawBitmap(logo, MainScreen.LOGO_X, MainScreen.LOGO_Y, null);
         
         //draw the menu buttons
-        start.render(canvas);
-        settings.render(canvas);
-        instructions.render(canvas);
-        rate.render(canvas);
-        more.render(canvas);
-        exit.render(canvas);
+        if (buttons != null)
+        {
+            for (Button button : buttons.values())
+            {
+                if (button != null)
+                    button.render(canvas, paint);
+            }
+        }
     }
     
     @Override
     public void dispose()
     {
-        if (start != null)
+        if (buttons != null)
         {
-            start.dispose();
-            start = null;
+            for (Button button : buttons.values())
+            {
+                if (button != null)
+                {
+                    button.dispose();
+                    button = null;
+                }
+            }
+            
+            buttons.clear();
+            buttons = null;
         }
         
-        if (exit != null)
-        {
-            exit.dispose();
-            exit = null;
-        }
-        
-        if (settings != null)
-        {
-            settings.dispose();
-            settings = null;
-        }
-        
-        if (instructions != null)
-        {
-            instructions.dispose();
-            instructions = null;
-        }
-        
-        if (more != null)
-        {
-            more.dispose();
-            more = null;
-        }
-        
-        if (rate != null)
-        {
-            rate.dispose();
-            rate = null;
-        }
+        paint = null;
     }
 }

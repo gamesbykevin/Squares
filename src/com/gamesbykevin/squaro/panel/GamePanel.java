@@ -26,8 +26,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Di
     public static Random RANDOM = new Random(System.nanoTime());
     
     //default dimensions of window for this game
-    public static final int WIDTH = 960;
-    public static final int HEIGHT = 1600;
+    public static final int WIDTH = 480;
+    public static final int HEIGHT = 800;
     
     //the reference to our activity
     private final MainActivity activity;
@@ -132,8 +132,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Di
     {
         try
         {
-            //create new random object
-            RANDOM = new Random(System.nanoTime());
+            //create if null
+            if (RANDOM == null)
+                RANDOM = new Random(System.nanoTime());
             
             //load game resources
             Assets.load(getActivity());

@@ -56,6 +56,16 @@ public final class MainScreen implements Screen, Disposable
     //the gameover screen
     private GameoverScreen gameoverScreen;
     
+    /**
+     * The x-coordinate where we want the logo to be displayed
+     */
+    public static final int LOGO_X = 40;
+    
+    /**
+     * The y-coordinate where we want the logo to be displayed
+     */
+    public static final int LOGO_Y = 50;
+    
     public MainScreen(final GamePanel panel)
     {
         //create a new background
@@ -68,7 +78,7 @@ public final class MainScreen implements Screen, Disposable
         this.background.setHeight(GamePanel.HEIGHT);
         
         //add animation to spritesheet
-        //this.background.getSpritesheet().add(Assets.ImageKey.Background, new Animation(Images.getImage(Assets.ImageKey.Background)));
+        this.background.getSpritesheet().add(Assets.ImageKey.Background, new Animation(Images.getImage(Assets.ImageKey.Background)));
         
         //store our game panel reference
         this.panel = panel;
@@ -244,13 +254,14 @@ public final class MainScreen implements Screen, Disposable
             //draw the background
             background.render(canvas);
             
+            //render game if exists
+            if (getGame() != null)
+                getGame().render(canvas);
+            
             //render the appropriate screen
             switch (getState())
             {
                 case Ready:
-                    if (getGame() != null)
-                        getGame().render(canvas);
-                    
                     //darken background
                     canvas.drawARGB(175, 0, 0, 0);
                     
@@ -261,8 +272,6 @@ public final class MainScreen implements Screen, Disposable
 
                     //if running, only render the game
                 case Running:
-                    if (getGame() != null)
-                        getGame().render(canvas);
                     break;
 
                 case Paused:
@@ -276,8 +285,6 @@ public final class MainScreen implements Screen, Disposable
                             break;
                             
                         case Running:
-                            if (getGame() != null)
-                                getGame().render(canvas);
                             break;
                             
                         case Options:
@@ -302,9 +309,6 @@ public final class MainScreen implements Screen, Disposable
                     break;
 
                 case Options:
-                    if (getGame() != null)
-                        getGame().render(canvas);
-                    
                     //darken background
                     canvas.drawARGB(175, 0, 0, 0);
                     
@@ -313,9 +317,6 @@ public final class MainScreen implements Screen, Disposable
                     break;
                     
                 case Exit:
-                    if (getGame() != null)
-                        getGame().render(canvas);
-                    
                     //darken background
                     canvas.drawARGB(175, 0, 0, 0);
                     
@@ -324,9 +325,6 @@ public final class MainScreen implements Screen, Disposable
                     break;
                     
                 case GameOver:
-                    if (getGame() != null)
-                        getGame().render(canvas);
-                    
                     //darken background
                     canvas.drawARGB(175, 0, 0, 0);
                     
