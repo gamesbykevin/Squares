@@ -7,6 +7,28 @@ package com.gamesbykevin.squaro.board;
 public class BoardHelper 
 {
     /**
+     * Do we have a match
+     * @param board The board we are checking
+     * @return true if all the values match, false otherwise
+     */
+    public static final boolean hasMatch(final Board board)
+    {
+        //make sure each location matches
+        for (int row = 0; row < board.getRows() - 1; row++)
+        {
+            for (int col = 0; col < board.getCols() - 1; col++)
+            {
+                //if the count is not equal, there is no match
+                if (getCount(board.getPlayer(), col, row) != getCount(board.getSolution(), col, row))
+                    return false;
+            }
+        }
+        
+        //we made it here, and now found a match
+        return true;
+    }
+    
+    /**
      * Get the start x
      * @param board Board containing location
      * @param col The col where the coordinate is

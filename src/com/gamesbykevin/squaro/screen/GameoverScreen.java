@@ -11,6 +11,7 @@ import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.resources.Font;
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.androidframework.screen.Screen;
+import com.gamesbykevin.squaro.MainActivity;
 import com.gamesbykevin.squaro.assets.Assets;
 import com.gamesbykevin.squaro.panel.GamePanel;
 
@@ -24,7 +25,7 @@ public class GameoverScreen implements Screen, Disposable
     private final MainScreen screen;
     
     //object to paint background
-    private Paint paint;
+    private Paint paint, paintButton;
     
     //the message to display
     private String message = "";
@@ -33,40 +34,58 @@ public class GameoverScreen implements Screen, Disposable
     private int pixelW;
     
     //buttons
-    private Button restart, mainmenu, exitgame;
+    private Button restart, mainmenu, rateapp, exitgame;
     
     public GameoverScreen(final MainScreen screen)
     {
         //store our parent reference
         this.screen = screen;
         
-        //create paint text object
-        this.paint = new Paint();
-        this.paint.setColor(Color.WHITE);
-        this.paint.setTextSize(48f);
-        this.paint.setTypeface(Font.getFont(Assets.FontKey.Default));
+        //create new paint object
+        this.paintButton = new Paint();
         
-        final int x = 230;
-        int y = 375;
-        final int addY = 200;
+        //set the text size
+        this.paintButton.setTextSize(24f);
+        
+        //set the color
+        this.paintButton.setColor(Color.WHITE);
+        
+        final int x = 110;
+        int y = 75;
+        final int addY = 100;
 
         //create our buttons
+        y += addY;
         this.restart = new Button(Images.getImage(Assets.ImageKey.Button));
         this.restart.setX(x);
         this.restart.setY(y);
         this.restart.updateBounds();
+        this.restart.setText("New Game");
+        this.restart.positionText(paintButton);
         
         y += addY;
         this.mainmenu = new Button(Images.getImage(Assets.ImageKey.Button));
         this.mainmenu.setX(x);
         this.mainmenu.setY(y);
         this.mainmenu.updateBounds();
+        this.mainmenu.setText("Menu");
+        this.mainmenu.positionText(paintButton);
+        
+        y += addY;
+        this.rateapp = new Button(Images.getImage(Assets.ImageKey.Button));
+        this.rateapp.setX(x);
+        this.rateapp.setY(y);
+        this.rateapp.updateBounds();
+        this.rateapp.setText(MenuScreen.BUTTON_TEXT_RATE_APP);
+        this.rateapp.positionText(paintButton);
         
         y += addY;
         this.exitgame = new Button(Images.getImage(Assets.ImageKey.Button));
         this.exitgame.setX(x);
         this.exitgame.setY(y);
         this.exitgame.updateBounds();
+        this.exitgame.setText(MenuScreen.BUTTON_TEXT_EXIT_GAME);
+        this.exitgame.positionText(paintButton);
     }
     
     /**
@@ -80,6 +99,15 @@ public class GameoverScreen implements Screen, Disposable
         
         //create temporary rectangle
         Rect tmp = new Rect();
+        
+        //create paint text object for the message
+        if (paint == null)
+            paint = new Paint();
+        
+        //assign metrics
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(32f);
+        paint.setTypeface(Font.getFont(Assets.FontKey.Default));
         
         //get the rectangle around the message
         paint.getTextBounds(message, 0, message.length(), tmp);
@@ -101,7 +129,7 @@ public class GameoverScreen implements Screen, Disposable
                 //move back to the game
                 screen.setState(MainScreen.State.Running);
                 
-                //restart game
+                //restart game with the same settings
                 screen.getGame().reset();
             }
             else if (mainmenu.contains(x, y))
@@ -111,6 +139,14 @@ public class GameoverScreen implements Screen, Disposable
                 
                 //move to the main menu
                 screen.setState(MainScreen.State.Ready);
+            }
+            else if (rateapp.contains(x, y))
+            {
+                //play sound effect
+                //Audio.play(Assets.AudioKey.SettingChange);
+                
+                //go to rate game page
+                screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_RATE_URL);
             }
             else if (exitgame.contains(x, y))
             {
@@ -147,9 +183,10 @@ public class GameoverScreen implements Screen, Disposable
         }
         
         //render buttons
-        restart.render(canvas);
-        mainmenu.render(canvas);
-        exitgame.render(canvas);
+        restart.render(canvas, paintButton);
+        rateapp.render(canvas, paintButton);
+        mainmenu.render(canvas, paintButton);
+        exitgame.render(canvas, paintButton);
     }
     
     @Override
@@ -157,6 +194,9 @@ public class GameoverScreen implements Screen, Disposable
     {
         if (paint != null)
             paint = null;
+        
+        if (paintButton != null)
+            paintButton = null;
         
         if (restart != null)
         {
@@ -174,6 +214,12 @@ public class GameoverScreen implements Screen, Disposable
         {
             exitgame.dispose();
             exitgame = null;
+        }
+        
+        if (rateapp != null)
+        {
+            rateapp.dispose();
+            rateapp = null;
         }
     }
 }

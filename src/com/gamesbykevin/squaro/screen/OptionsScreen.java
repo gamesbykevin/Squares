@@ -2,6 +2,8 @@ package com.gamesbykevin.squaro.screen;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.MotionEvent;
 
 import com.gamesbykevin.androidframework.awt.Button;
@@ -10,6 +12,7 @@ import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.androidframework.screen.Screen;
 import com.gamesbykevin.squaro.assets.Assets;
+import com.gamesbykevin.squaro.game.Game;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +29,9 @@ public class OptionsScreen implements Screen, Disposable
     //list of difficulty buttons
     private List<Button> difficulties;
     
+    //list of different sizes
+    private List<Button> sizes;
+    
     //list of mode buttons
     private List<Button> modes;
     
@@ -35,6 +41,7 @@ public class OptionsScreen implements Screen, Disposable
     //store the index
     private int indexDifficulty = 0;
     private int indexMode = 0;
+    private int indexSize = 0;
     
     //the go back button
     private Button back;
@@ -42,64 +49,141 @@ public class OptionsScreen implements Screen, Disposable
     //our main screen reference
     private final MainScreen screen;
     
+    //paint object to draw text
+    private Paint paint;
+    
     public OptionsScreen(final MainScreen screen)
     {
         //our logo reference
-        this.logo = Images.getImage(null);
+        this.logo = Images.getImage(Assets.ImageKey.Logo);
         
         //store our screen reference
         this.screen = screen;
         
+        //create new paint object
+        this.paint = new Paint();
+        
+        //set the text size
+        this.paint.setTextSize(24f);
+        
+        //set the color
+        this.paint.setColor(Color.WHITE);
+        
         //start coordinates
-        final int x = 230;
-        int y = 350;
+        final int x = 110;
+        int y = 175;
+        final int incrementY = 100;
+        
+        //add size option
+        this.sizes = new ArrayList<Button>();
         
         //add audio option
         this.sounds = new ArrayList<Button>();
-        this.sounds.add(new Button(Images.getImage(Assets.ImageKey.Button)));
-        this.sounds.add(new Button(Images.getImage(Assets.ImageKey.Button)));
         
-        for (Button button : sounds)
+        Button button = new Button(Images.getImage(Assets.ImageKey.Button));
+        button.setText("Sound: Disabled");
+        button.setX(x);
+        button.setY(y);
+        button.updateBounds();
+        button.positionText(paint);
+        
+        this.sounds.add(button);
+        
+        button = new Button(Images.getImage(Assets.ImageKey.Button));
+        button.setText("Sound: Enabled");
+        button.setX(x);
+        button.setY(y);
+        button.updateBounds();
+        button.positionText(paint);
+        
+        this.sounds.add(button);
+        
+        //add buttons
+        this.modes = new ArrayList<Button>();
+        
+        y += incrementY;
+        for (Game.Mode mode : Game.Mode.values())
         {
+            //create button
+            button = new Button(Images.getImage(Assets.ImageKey.Button));
+            
+            //set the description
+            button.setText("Mode: " + mode.getDescription());
+            
+            //assign location
             button.setX(x);
             button.setY(y);
+            
+            //set boundary
             button.updateBounds();
+            
+            //position text
+            button.positionText(paint);
+            
+            //add to list
+            modes.add(button);
         }
         
         //add buttons
         this.difficulties = new ArrayList<Button>();
-        this.difficulties.add(new Button(Images.getImage(Assets.ImageKey.Button)));
-        this.difficulties.add(new Button(Images.getImage(Assets.ImageKey.Button)));
-        this.difficulties.add(new Button(Images.getImage(Assets.ImageKey.Button)));
         
-        y += 200;
-        for (Button button : difficulties)
+        y += incrementY;
+        for (Game.Difficulty diff : Game.Difficulty.values())
         {
+            //create button
+            button = new Button(Images.getImage(Assets.ImageKey.Button));
+            
+            //set the description
+            button.setText("Difficutly: " + diff.getDescription());
+            
+            //assign location
             button.setX(x);
             button.setY(y);
+            
+            //set boundary
             button.updateBounds();
+            
+            //position text
+            button.positionText(paint);
+            
+            //add to list
+            difficulties.add(button);
         }
         
-        //add buttons
-        this.modes = new ArrayList<Button>();
-        this.modes.add(new Button(Images.getImage(Assets.ImageKey.Button)));
-        this.modes.add(new Button(Images.getImage(Assets.ImageKey.Button)));
-        this.modes.add(new Button(Images.getImage(Assets.ImageKey.Button)));
+        //add size option
+        this.sizes = new ArrayList<Button>();
         
-        y += 200;
-        for (Button button : modes)
+        y += incrementY;
+        for (Game.Size size : Game.Size.values())
         {
+            //create button
+            button = new Button(Images.getImage(Assets.ImageKey.Button));
+            
+            //set the description
+            button.setText("Size: " + size.getDescription());
+            
+            //assign location
             button.setX(x);
             button.setY(y);
+            
+            //set boundary
             button.updateBounds();
+            
+            //position text
+            button.positionText(paint);
+            
+            //add to list
+            sizes.add(button);
         }
         
-        y += 200;
+        y += incrementY;
         //the back button
         this.back = new Button(Images.getImage(Assets.ImageKey.Button));
+        this.back.setText("Go Back");
         this.back.setX(x);
         this.back.setY(y);
         this.back.updateBounds();
+        this.back.positionText(paint);
     }
     
     @Override
@@ -130,7 +214,7 @@ public class OptionsScreen implements Screen, Disposable
                     //Audio.play(Assets.AudioKey.SettingChange);
                     
                     //exit loop
-                    break;
+                    return true;
                 }
             }
             
@@ -146,6 +230,24 @@ public class OptionsScreen implements Screen, Disposable
                     
                     if (this.indexMode >= modes.size())
                         this.indexMode = 0;
+                    
+                    //no need to continue
+                    return true;
+                }
+            }
+            
+            for (Button button : sizes)
+            {
+                if (button.contains(x, y))
+                {
+                    //play sound effect
+                    //Audio.play(Assets.AudioKey.SettingChange);
+                    
+                    //increase index
+                    this.indexSize++;
+                    
+                    if (this.indexSize >= sizes.size())
+                        this.indexSize = 0;
                     
                     //no need to continue
                     return true;
@@ -199,17 +301,27 @@ public class OptionsScreen implements Screen, Disposable
         return this.indexDifficulty;
     }
     
+    /**
+     * Get the size index
+     * @return The desired user size of the board
+     */
+    public int getIndexSize()
+    {
+        return this.indexSize;
+    }
+    
     @Override
     public void render(final Canvas canvas) throws Exception
     {
         //draw main logo
-        //canvas.drawBitmap(logo, 104, 100, null);
+        canvas.drawBitmap(logo, MainScreen.LOGO_X, MainScreen.LOGO_Y, null);
         
         //draw the menu buttons
-        difficulties.get(this.indexDifficulty).render(canvas);
-        modes.get(this.indexMode).render(canvas);
-        back.render(canvas);
-        sounds.get(Audio.isAudioEnabled() ? 1 : 0).render(canvas);
+        difficulties.get(this.indexDifficulty).render(canvas, paint);
+        modes.get(this.indexMode).render(canvas, paint);
+        sizes.get(this.indexSize).render(canvas, paint);
+        sounds.get(Audio.isAudioEnabled() ? 1 : 0).render(canvas, paint);
+        back.render(canvas, paint);
     }
     
     @Override
@@ -265,5 +377,23 @@ public class OptionsScreen implements Screen, Disposable
             sounds.clear();
             sounds = null;
         }
+        
+        if (sizes != null)
+        {
+            for (Button button : sizes)
+            {
+                if (button != null)
+                {
+                    button.dispose();
+                    button = null;
+                }
+            }
+            
+            sizes.clear();
+            sizes = null;
+        }
+        
+        if (paint != null)
+            paint = null;
     }
 }

@@ -22,6 +22,12 @@ public class BlockKey extends Entity
         InValid_0, InValid_1, InValid_2, InValid_3, InValid_4, InValid_5, InValid_6, InValid_7, InValid_8, 
         InValid_9, InValid_10, InValid_11, InValid_12, InValid_13, InValid_14, InValid_15, InValid_16
     }
+
+    public enum KeyStart
+    {
+        Start_0, Start_1, Start_2, Start_3, Start_4, Start_5, Start_6, Start_7, Start_8, 
+        Start_9, Start_10, Start_11, Start_12, Start_13, Start_14, Start_15, Start_16, 
+    }
     
     /**
      * The size of the image on the sprite sheet
@@ -49,35 +55,10 @@ public class BlockKey extends Entity
                 final int x = col * DEFAULT_DIMENSION;
                 final int y = row * DEFAULT_DIMENSION;
                 
-                //create animation
-                Animation animation = new Animation(Images.getImage(Assets.ImageKey.NumbersGreen), x, y, DEFAULT_DIMENSION, DEFAULT_DIMENSION);
-                
-                //assign animation
-                super.getSpritesheet().add(KeyValid.values()[index], animation);
-                
-                index++;
-            }
-        }
-        
-        index = 0;
-        
-        for (int row = 0; row < 4; row++)
-        {
-            for (int col = 0; col < 5; col++)
-            {
-                //don't continue once we mapped each key
-                if (index >= KeyInValid.values().length)
-                    continue;
-                
-                //locate x, y
-                final int x = col * DEFAULT_DIMENSION;
-                final int y = row * DEFAULT_DIMENSION;
-                
-                //create animation
-                Animation animation = new Animation(Images.getImage(Assets.ImageKey.NumbersRed), x, y, DEFAULT_DIMENSION, DEFAULT_DIMENSION);
-                
-                //assign animation
-                super.getSpritesheet().add(KeyInValid.values()[index], animation);
+                //assign animations
+                super.getSpritesheet().add(KeyValid.values()[index], new Animation(Images.getImage(Assets.ImageKey.NumbersGreen), x, y, DEFAULT_DIMENSION, DEFAULT_DIMENSION));
+                super.getSpritesheet().add(KeyInValid.values()[index], new Animation(Images.getImage(Assets.ImageKey.NumbersRed), x, y, DEFAULT_DIMENSION, DEFAULT_DIMENSION));
+                super.getSpritesheet().add(KeyStart.values()[index], new Animation(Images.getImage(Assets.ImageKey.NumbersBeige), x, y, DEFAULT_DIMENSION, DEFAULT_DIMENSION));
                 
                 index++;
             }
@@ -86,80 +67,160 @@ public class BlockKey extends Entity
     
     /**
      * Assign the animation
-     * @param valid Is the count valid
-     * @param count What is the count
+     * @param countSolution The solution count
+     * @param countPlayer The player selection count
      */
-    public void setAnimation(final boolean valid, final int count)
+    public void setAnimation(final int countSolution, final int countPlayer)
     {
-        switch (count)
+        //determine if the selection is valid
+        final boolean valid = (countSolution == countPlayer);
+        
+        //if there count does not match, and the player hasn't made any selections yet
+        if (countPlayer == 0 && !valid)
         {
-            case 0:
-                setAnimation((!valid) ? KeyInValid.InValid_0 : KeyValid.Valid_0);
-                break;
-                
-            case 1:
-                setAnimation((!valid) ? KeyInValid.InValid_1 : KeyValid.Valid_1);
-                break;
-                
-            case 2:
-                setAnimation((!valid) ? KeyInValid.InValid_2 : KeyValid.Valid_2);
-                break;
-                
-            case 3:
-                setAnimation((!valid) ? KeyInValid.InValid_3 : KeyValid.Valid_3);
-                break;
-                
-            case 4:
-                setAnimation((!valid) ? KeyInValid.InValid_4 : KeyValid.Valid_4);
-                break;
-                
-            case 5:
-                setAnimation((!valid) ? KeyInValid.InValid_5 : KeyValid.Valid_5);
-                break;
-                
-            case 6:
-                setAnimation((!valid) ? KeyInValid.InValid_6 : KeyValid.Valid_6);
-                break;
-                
-            case 7:
-                setAnimation((!valid) ? KeyInValid.InValid_7 : KeyValid.Valid_7);
-                break;
-                
-            case 8:
-                setAnimation((!valid) ? KeyInValid.InValid_8 : KeyValid.Valid_8);
-                break;
-                
-            case 9:
-                setAnimation((!valid) ? KeyInValid.InValid_9 : KeyValid.Valid_9);
-                break;
-                
-            case 10:
-                setAnimation((!valid) ? KeyInValid.InValid_10 : KeyValid.Valid_10);
-                break;
-                
-            case 11:
-                setAnimation((!valid) ? KeyInValid.InValid_11 : KeyValid.Valid_11);
-                break;
-                
-            case 12:
-                setAnimation((!valid) ? KeyInValid.InValid_12 : KeyValid.Valid_12);
-                break;
-                
-            case 13:
-                setAnimation((!valid) ? KeyInValid.InValid_13 : KeyValid.Valid_13);
-                break;
-                
-            case 14:
-                setAnimation((!valid) ? KeyInValid.InValid_14 : KeyValid.Valid_14);
-                break;
-                
-            case 15:
-                setAnimation((!valid) ? KeyInValid.InValid_15 : KeyValid.Valid_15);
-                break;
-                
-            case 16:
-                setAnimation((!valid) ? KeyInValid.InValid_16 : KeyValid.Valid_16);
-                break;
+            switch (countSolution)
+            {
+                case 0:
+                    setAnimation(KeyStart.Start_0);
+                    break;
+
+                case 1:
+                    setAnimation(KeyStart.Start_1);
+                    break;
+
+                case 2:
+                    setAnimation(KeyStart.Start_2);
+                    break;
+
+                case 3:
+                    setAnimation(KeyStart.Start_3);
+                    break;
+
+                case 4:
+                    setAnimation(KeyStart.Start_4);
+                    break;
+
+                case 5:
+                    setAnimation(KeyStart.Start_5);
+                    break;
+
+                case 6:
+                    setAnimation(KeyStart.Start_6);
+                    break;
+
+                case 7:
+                    setAnimation(KeyStart.Start_7);
+                    break;
+
+                case 8:
+                    setAnimation(KeyStart.Start_8);
+                    break;
+
+                case 9:
+                    setAnimation(KeyStart.Start_9);
+                    break;
+
+                case 10:
+                    setAnimation(KeyStart.Start_10);
+                    break;
+
+                case 11:
+                    setAnimation(KeyStart.Start_11);
+                    break;
+
+                case 12:
+                    setAnimation(KeyStart.Start_12);
+                    break;
+
+                case 13:
+                    setAnimation(KeyStart.Start_13);
+                    break;
+
+                case 14:
+                    setAnimation(KeyStart.Start_14);
+                    break;
+
+                case 15:
+                    setAnimation(KeyStart.Start_15);
+                    break;
+
+                case 16:
+                    setAnimation(KeyStart.Start_16);
+                    break;
+            }
+        }
+        else
+        {
+            switch (countSolution)
+            {
+                case 0:
+                    setAnimation((!valid) ? KeyInValid.InValid_0 : KeyValid.Valid_0);
+                    break;
+
+                case 1:
+                    setAnimation((!valid) ? KeyInValid.InValid_1 : KeyValid.Valid_1);
+                    break;
+
+                case 2:
+                    setAnimation((!valid) ? KeyInValid.InValid_2 : KeyValid.Valid_2);
+                    break;
+
+                case 3:
+                    setAnimation((!valid) ? KeyInValid.InValid_3 : KeyValid.Valid_3);
+                    break;
+
+                case 4:
+                    setAnimation((!valid) ? KeyInValid.InValid_4 : KeyValid.Valid_4);
+                    break;
+
+                case 5:
+                    setAnimation((!valid) ? KeyInValid.InValid_5 : KeyValid.Valid_5);
+                    break;
+
+                case 6:
+                    setAnimation((!valid) ? KeyInValid.InValid_6 : KeyValid.Valid_6);
+                    break;
+
+                case 7:
+                    setAnimation((!valid) ? KeyInValid.InValid_7 : KeyValid.Valid_7);
+                    break;
+
+                case 8:
+                    setAnimation((!valid) ? KeyInValid.InValid_8 : KeyValid.Valid_8);
+                    break;
+
+                case 9:
+                    setAnimation((!valid) ? KeyInValid.InValid_9 : KeyValid.Valid_9);
+                    break;
+
+                case 10:
+                    setAnimation((!valid) ? KeyInValid.InValid_10 : KeyValid.Valid_10);
+                    break;
+
+                case 11:
+                    setAnimation((!valid) ? KeyInValid.InValid_11 : KeyValid.Valid_11);
+                    break;
+
+                case 12:
+                    setAnimation((!valid) ? KeyInValid.InValid_12 : KeyValid.Valid_12);
+                    break;
+
+                case 13:
+                    setAnimation((!valid) ? KeyInValid.InValid_13 : KeyValid.Valid_13);
+                    break;
+
+                case 14:
+                    setAnimation((!valid) ? KeyInValid.InValid_14 : KeyValid.Valid_14);
+                    break;
+
+                case 15:
+                    setAnimation((!valid) ? KeyInValid.InValid_15 : KeyValid.Valid_15);
+                    break;
+
+                case 16:
+                    setAnimation((!valid) ? KeyInValid.InValid_16 : KeyValid.Valid_16);
+                    break;
+            }
         }
     }
     

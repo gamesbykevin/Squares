@@ -64,8 +64,12 @@ public final class MainScreen implements Screen, Disposable
     /**
      * The y-coordinate where we want the logo to be displayed
      */
-    public static final int LOGO_Y = 50;
+    public static final int LOGO_Y = 40;
     
+    /**
+     * Create our main screen
+     * @param panel The reference to our game panel
+     */
     public MainScreen(final GamePanel panel)
     {
         //create a new background
@@ -76,7 +80,7 @@ public final class MainScreen implements Screen, Disposable
         this.background.setY(0);
         this.background.setWidth(GamePanel.WIDTH);
         this.background.setHeight(GamePanel.HEIGHT);
-        
+
         //add animation to spritesheet
         this.background.getSpritesheet().add(Assets.ImageKey.Background, new Animation(Images.getImage(Assets.ImageKey.Background)));
         
@@ -195,14 +199,14 @@ public final class MainScreen implements Screen, Disposable
      */
     public void createGame() throws Exception
     {
-        this.game = new Game(
-            this, 
-            Game.Mode.values()[optionsScreen.getIndexMode()],
-            Game.Difficulty.values()[optionsScreen.getIndexDifficulty()]
-        );
+        if (getGame() == null)
+            this.game = new Game(this);
         
-        //reset game
-        getGame().reset();
+        //reset the game
+        getGame().reset(
+            Game.Mode.values()[optionsScreen.getIndexMode()], 
+            Game.Difficulty.values()[optionsScreen.getIndexDifficulty()], 
+            Game.Size.values()[optionsScreen.getIndexSize()]);
     }
     
     protected GamePanel getPanel()
@@ -219,19 +223,21 @@ public final class MainScreen implements Screen, Disposable
     {
         //if pausing store the previous state
         if (state == State.Paused)
+        {
+            //set the previous state
             pauseScreen.setStatePrevious(getState());
+        }
         
-        //if not the running state, stop all existing sound
+        //if not in the running state, stop sound and timer
         if (state != State.Running)
         {
+            //stop the timer
+            if (getGame() != null)
+                getGame().stopTimer();
+            
+            //stop all sound
             Audio.stop();
         }
-        else
-        {
-            if (getGame() != null)
-                getGame().resumeMusic();
-        }
-        
         
         //assign the state
         this.state = state;
@@ -342,6 +348,12 @@ public final class MainScreen implements Screen, Disposable
     @Override
     public void dispose()
     {
+        if (background != null)
+        {
+            background.dispose();
+            background = null;
+        }
+        
         if (game != null)
         {
             game.dispose();

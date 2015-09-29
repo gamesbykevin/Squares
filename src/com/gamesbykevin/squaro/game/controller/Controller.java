@@ -3,7 +3,6 @@ package com.gamesbykevin.squaro.game.controller;
 import com.gamesbykevin.androidframework.awt.Button;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.view.MotionEvent;
 
 import com.gamesbykevin.androidframework.resources.Audio;
@@ -12,7 +11,6 @@ import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.squaro.assets.Assets;
 import com.gamesbykevin.squaro.game.Game;
 import com.gamesbykevin.squaro.screen.MainScreen;
-import com.gamesbykevin.squaro.thread.MainThread;
 
 import java.util.HashMap;
 
@@ -141,9 +139,6 @@ public class Controller implements IController
                 {
                     //play sound indicating sound is enabled
                     //Audio.play(Assets.AudioKey.SettingChange);
-                    
-                    //resume music
-                    getGame().resumeMusic();
                 }
                 else
                 {

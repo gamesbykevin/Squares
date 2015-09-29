@@ -31,7 +31,7 @@ public class Assets
      */
     public enum FontKey
     {
-        Default
+        Default, Dialog
     }
     
     /**
@@ -45,9 +45,9 @@ public class Assets
         CancelDisabled, CancelEnabled,
         ConfirmDisabled, ConfirmEnabled,
         Fill, 
-        Logo,
+        Logo, 
         MenuDisabled, MenuEnabled,
-        NumbersGreen, NumbersRed,
+        NumbersBeige, NumbersGreen, NumbersRed,
         PauseDisabled, PauseEnabled, 
         SoundDisabled, SoundEnabled,
     }

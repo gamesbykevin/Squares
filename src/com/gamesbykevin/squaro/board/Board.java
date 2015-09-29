@@ -19,24 +19,24 @@ public final class Board extends Entity implements IBoard
     public static final int DEFAULT_DIMENSIONS = 3;
     
     /**
-     * The size of a small board
+     * The peg size of a small board
      */
-    public static final int SIZE_SMALL = 2;
+    public static final int SIZE_SMALL = 3;
     
     /**
-     * The size of a medium board
+     * The peg size of a medium board
      */
-    public static final int SIZE_MEDIUM = 3;
+    public static final int SIZE_MEDIUM = 4;
     
     /**
-     * The size of a large board
+     * The peg size of a large board
      */
-    public static final int SIZE_LARGE = 4;
+    public static final int SIZE_LARGE = 5;
     
     /**
-     * The size of a very large board
+     * The peg size of a very large board
      */
-    public static final int SIZE_VERY_LARGE = 5;
+    public static final int SIZE_VERY_LARGE = 6;
     
     /**
      * The range for easy game play
@@ -70,11 +70,17 @@ public final class Board extends Entity implements IBoard
      */
     private static final int PIXEL_PADDING = 15;
     
+    //store the dimensions
+    private int cols, rows;
+    
     /**
      * Create a new Board
-     * @throws Exception
+     * @param cols
+     * @param rows
+     * @param range
+     * @throws Exception 
      */
-    public Board() throws Exception
+    public Board(final int cols, final int rows, final int range) throws Exception
     {
         //create a new block key
         this.blockKey = new BlockKey();
@@ -83,8 +89,27 @@ public final class Board extends Entity implements IBoard
         this.peg = new Peg();
         
         //set default board
-        reset(DEFAULT_DIMENSIONS, DEFAULT_DIMENSIONS, DIFFICULTY_RANGE_HARD);
+        reset(cols, rows, range);
     }
+    
+    /**
+     * Get the columns
+     * @return Column dimension of the current board
+     */
+    protected int getCols()
+    {
+        return this.cols;
+    }
+    
+    /**
+     * Get the rows
+     * @return Row dimension of the current board
+     */
+    protected int getRows()
+    {
+        return this.rows;
+    }
+            
     
     @Override
     public void dispose()
@@ -116,26 +141,36 @@ public final class Board extends Entity implements IBoard
      */
     public final void reset(final int cols, final int rows, final int range) throws Exception
     {
-        //create the new key to the board
-        this.solution = new int[rows + 1][cols + 1];
+        this.cols = cols;
+        this.rows = rows;
         
-        //create new key board for the player
-        this.player = new int[rows + 1][cols + 1];
-        
+        if (getSolution() == null)
+            this.solution = new int[Board.SIZE_VERY_LARGE + Board.SIZE_MEDIUM + 1][Board.SIZE_VERY_LARGE + Board.SIZE_SMALL + 1];
+        if (getPlayer() == null)
+            this.player = new int[Board.SIZE_VERY_LARGE + Board.SIZE_MEDIUM + 1][Board.SIZE_VERY_LARGE + Board.SIZE_SMALL + 1];
+
+        //reset to 0
         for (int row = 0; row < getSolution().length; row++)
         {
             for (int col  = 0; col < getSolution()[0].length; col++)
             {
+                getPlayer()[row][col] = 0;
+                getSolution()[row][col] = 0;
+            }
+        }
+        
+        //pick random values
+        for (int row = 0; row < getRows(); row++)
+        {
+            for (int col  = 0; col < getCols(); col++)
+            {
                 //assign random value
                 getSolution()[row][col] = GamePanel.RANDOM.nextInt(range);
-                
-                //reset player back to 0
-                getPlayer()[row][col] = 0;
             }
         }
         
         //assign cell dimensions
-        super.setWidth((GamePanel.WIDTH - PIXEL_PADDING - PIXEL_PADDING) / getSolution()[0].length);
+        super.setWidth((GamePanel.WIDTH - PIXEL_PADDING - PIXEL_PADDING) / getCols());
         super.setHeight(super.getWidth());
         
         //assign the range
@@ -146,7 +181,7 @@ public final class Board extends Entity implements IBoard
         this.peg.setHeight(peg.getWidth());
         
         //calculate the width of the key board
-        final double width = (getSolution()[0].length - 1) * getWidth();
+        final double width = (getCols() - 1) * getWidth();
         
         //position the start point in the middle
         setX((GamePanel.WIDTH / 2) - (width / 2));
@@ -155,7 +190,7 @@ public final class Board extends Entity implements IBoard
     
     /**
      * Get the key board
-     * @return The 
+     * @return The key to solve the board
      */
     protected int[][] getSolution()
     {
@@ -163,8 +198,8 @@ public final class Board extends Entity implements IBoard
     }
     
     /**
-     * 
-     * @return 
+     * Get the player key
+     * @return The key of player selections
      */
     protected int[][] getPlayer()
     {
@@ -179,9 +214,9 @@ public final class Board extends Entity implements IBoard
     public void update(final float x, final float y)
     {
         //render the pegs
-        for (int row = 0; row < getPlayer().length; row++)
+        for (int row = 0; row < getRows(); row++)
         {
-            for (int col  = 0; col < getPlayer()[0].length; col++)
+            for (int col  = 0; col < getCols(); col++)
             {
                 //calculate coordinates
                 peg.setX(BoardHelper.getStartX(this, col) - (peg.getWidth() / 2));
@@ -210,18 +245,18 @@ public final class Board extends Entity implements IBoard
     public void render(final Canvas canvas) throws Exception
     {
         //render the block keys
-        for (int row = 0; row < getSolution().length - 1; row++)
+        for (int row = 0; row < getRows() - 1; row++)
         {
-            for (int col  = 0; col < getSolution()[0].length - 1; col++)
+            for (int col  = 0; col < getCols() - 1; col++)
             {
                 //the actual solution count
-                final int countActual = BoardHelper.getCount(getSolution(), col, row);
+                final int countSolution = BoardHelper.getCount(getSolution(), col, row);
 
                 //the count of the player entry
-                final int countPlayer = BoardHelper.getCount(getPlayer(), col, row);;
+                final int countPlayer = BoardHelper.getCount(getPlayer(), col, row);
 
                 //assign the proper animation
-                blockKey.setAnimation(countActual == countPlayer, countActual);
+                blockKey.setAnimation(countSolution, countPlayer);
                 
                 //calculate coordinates
                 final int x = BoardHelper.getStartX(this, col);
@@ -237,9 +272,9 @@ public final class Board extends Entity implements IBoard
         }
         
         //render the pegs
-        for (int row = 0; row < getSolution().length; row++)
+        for (int row = 0; row < getRows(); row++)
         {
-            for (int col  = 0; col < getSolution()[0].length; col++)
+            for (int col  = 0; col < getCols(); col++)
             {
                 //calculate coordinates
                 peg.setX(BoardHelper.getStartX(this, col) - (peg.getWidth() / 2));

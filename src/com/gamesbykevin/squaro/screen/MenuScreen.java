@@ -34,6 +34,16 @@ public class MenuScreen implements Screen, Disposable
     //object used to define font metrics
     private Paint paint;
     
+    /**
+     * Button text to display to exit the game
+     */
+    public static final String BUTTON_TEXT_EXIT_GAME = "Exit Game";
+    
+    /**
+     * Button text to display to rate the game
+     */
+    public static final String BUTTON_TEXT_RATE_APP = "Rate this App";
+    
     private enum Key
     {
         Start, Exit, Settings, Instructions, More, Rate
@@ -82,7 +92,7 @@ public class MenuScreen implements Screen, Disposable
         tmp = new Button(Images.getImage(Assets.ImageKey.Button));
         tmp.setX(x);
         tmp.setY(y);
-        tmp.setText("Rate this App");
+        tmp.setText(BUTTON_TEXT_RATE_APP);
         this.buttons.put(Key.Rate, tmp);
         
         y += incrementY;
@@ -96,7 +106,7 @@ public class MenuScreen implements Screen, Disposable
         tmp = new Button(Images.getImage(Assets.ImageKey.Button));
         tmp.setX(x);
         tmp.setY(y);
-        tmp.setText("Exit Game");
+        tmp.setText(BUTTON_TEXT_EXIT_GAME);
         this.buttons.put(Key.Exit, tmp);
         
         //create new paint object
