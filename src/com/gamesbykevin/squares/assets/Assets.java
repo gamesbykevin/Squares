@@ -1,9 +1,9 @@
-package com.gamesbykevin.squaro.assets;
+package com.gamesbykevin.squares.assets;
 
 import android.app.Activity;
 
 import com.gamesbykevin.androidframework.resources.*;
-import com.gamesbykevin.squaro.panel.GamePanel;
+import com.gamesbykevin.squares.panel.GamePanel;
 
 /**
  * This class will contain our game assets

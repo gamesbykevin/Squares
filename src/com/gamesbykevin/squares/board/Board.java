@@ -1,11 +1,11 @@
-package com.gamesbykevin.squaro.board;
+package com.gamesbykevin.squares.board;
 
 import com.gamesbykevin.androidframework.base.Entity;
 
 import android.graphics.Canvas;
 
-import com.gamesbykevin.squaro.block.BlockKey;
-import com.gamesbykevin.squaro.panel.GamePanel;
+import com.gamesbykevin.squares.block.BlockKey;
+import com.gamesbykevin.squares.panel.GamePanel;
 
 /**
  * The game board

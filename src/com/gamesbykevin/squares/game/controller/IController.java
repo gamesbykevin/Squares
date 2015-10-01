@@ -1,4 +1,4 @@
-package com.gamesbykevin.squaro.game.controller;
+package com.gamesbykevin.squares.game.controller;
 
 import android.graphics.Canvas;
 import android.view.MotionEvent;

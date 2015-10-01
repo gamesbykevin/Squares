@@ -1,4 +1,4 @@
-package com.gamesbykevin.squaro.screen;
+package com.gamesbykevin.squares.screen;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -10,8 +10,8 @@ import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.resources.Font;
 import com.gamesbykevin.androidframework.screen.Screen;
 
-import com.gamesbykevin.squaro.assets.Assets;
-import com.gamesbykevin.squaro.panel.GamePanel;
+import com.gamesbykevin.squares.assets.Assets;
+import com.gamesbykevin.squares.panel.GamePanel;
 
 /**
  * The pause screen

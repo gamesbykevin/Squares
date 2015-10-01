@@ -1,4 +1,4 @@
-package com.gamesbykevin.squaro.board;
+package com.gamesbykevin.squares.board;
 
 import android.graphics.Canvas;
 

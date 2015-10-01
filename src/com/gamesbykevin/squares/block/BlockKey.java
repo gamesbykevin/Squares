@@ -1,9 +1,9 @@
-package com.gamesbykevin.squaro.block;
+package com.gamesbykevin.squares.block;
 
 import com.gamesbykevin.androidframework.anim.Animation;
 import com.gamesbykevin.androidframework.base.Entity;
 import com.gamesbykevin.androidframework.resources.Images;
-import com.gamesbykevin.squaro.assets.Assets;
+import com.gamesbykevin.squares.assets.Assets;
 
 /**
  * A block key will help the user solve the board

@@ -1,4 +1,4 @@
-package com.gamesbykevin.squaro.game.controller;
+package com.gamesbykevin.squares.game.controller;
 
 import com.gamesbykevin.androidframework.awt.Button;
 
@@ -8,10 +8,10 @@ import android.view.MotionEvent;
 import com.gamesbykevin.androidframework.resources.Audio;
 import com.gamesbykevin.androidframework.resources.Images;
 
-import com.gamesbykevin.squaro.assets.Assets;
-import com.gamesbykevin.squaro.game.Game;
-import com.gamesbykevin.squaro.panel.GamePanel;
-import com.gamesbykevin.squaro.screen.MainScreen;
+import com.gamesbykevin.squares.assets.Assets;
+import com.gamesbykevin.squares.game.Game;
+import com.gamesbykevin.squares.panel.GamePanel;
+import com.gamesbykevin.squares.screen.MainScreen;
 
 import java.util.HashMap;
 

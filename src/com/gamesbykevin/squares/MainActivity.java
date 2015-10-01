@@ -1,4 +1,4 @@
-package com.gamesbykevin.squaro;
+package com.gamesbykevin.squares;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.gamesbykevin.squaro.panel.GamePanel;
+import com.gamesbykevin.squares.panel.GamePanel;
 
 public class MainActivity extends Activity
 {
@@ -22,12 +22,12 @@ public class MainActivity extends Activity
     /**
      * The web address where this game can be rated
      */
-    public static final String WEBPAGE_RATE_URL = "https://play.google.com/store/apps/details?id=com.gamesbykevin.squaro";
+    public static final String WEBPAGE_RATE_URL = "https://play.google.com/store/apps/details?id=com.gamesbykevin.squares";
 
     /**
      * The url that contains the instructions for the game
      */
-    public static final String WEBPAGE_GAME_INSTRUCTIONS_URL = "http://gamesbykevin.com/2015/10/01/squaro/";
+    public static final String WEBPAGE_GAME_INSTRUCTIONS_URL = "http://gamesbykevin.com/2015/10/01/squares/";
     
     /** Called when the activity is first created. */
     @Override

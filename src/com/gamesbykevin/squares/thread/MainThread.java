@@ -1,4 +1,4 @@
-package com.gamesbykevin.squaro.thread;
+package com.gamesbykevin.squares.thread;
 
 import android.graphics.Canvas;
 import android.view.SurfaceHolder;
@@ -6,7 +6,7 @@ import com.gamesbykevin.androidframework.anim.Animation;
 
 import static java.lang.Thread.sleep;
 
-import com.gamesbykevin.squaro.panel.GamePanel;
+import com.gamesbykevin.squares.panel.GamePanel;
 
 /**
  * Our main thread containing the game loop

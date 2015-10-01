@@ -1,4 +1,4 @@
-package com.gamesbykevin.squaro.screen;
+package com.gamesbykevin.squares.screen;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -11,8 +11,8 @@ import com.gamesbykevin.androidframework.resources.Audio;
 import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.androidframework.screen.Screen;
-import com.gamesbykevin.squaro.assets.Assets;
-import com.gamesbykevin.squaro.game.Game;
+import com.gamesbykevin.squares.assets.Assets;
+import com.gamesbykevin.squares.game.Game;
 
 import java.util.ArrayList;
 import java.util.List;

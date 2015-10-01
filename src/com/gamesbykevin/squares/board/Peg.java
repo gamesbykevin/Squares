@@ -1,9 +1,9 @@
-package com.gamesbykevin.squaro.board;
+package com.gamesbykevin.squares.board;
 
 import com.gamesbykevin.androidframework.anim.Animation;
 import com.gamesbykevin.androidframework.base.Entity;
 import com.gamesbykevin.androidframework.resources.Images;
-import com.gamesbykevin.squaro.assets.Assets;
+import com.gamesbykevin.squares.assets.Assets;
 
 /**
  * A peg is one of the selections on the board the user can interact with

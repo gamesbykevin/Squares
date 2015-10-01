@@ -1,4 +1,4 @@
-package com.gamesbykevin.squaro.game;
+package com.gamesbykevin.squares.game;
 
 import com.gamesbykevin.androidframework.resources.Disposable;
 

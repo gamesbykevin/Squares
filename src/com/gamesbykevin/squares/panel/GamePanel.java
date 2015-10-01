@@ -1,4 +1,4 @@
-package com.gamesbykevin.squaro.panel;
+package com.gamesbykevin.squares.panel;
 
 import android.graphics.Canvas;
 import android.view.MotionEvent;
@@ -7,10 +7,10 @@ import android.view.SurfaceView;
 import com.gamesbykevin.androidframework.resources.Audio;
 import com.gamesbykevin.androidframework.resources.Disposable;
 
-import com.gamesbykevin.squaro.MainActivity;
-import com.gamesbykevin.squaro.assets.Assets;
-import com.gamesbykevin.squaro.screen.MainScreen;
-import com.gamesbykevin.squaro.thread.MainThread;
+import com.gamesbykevin.squares.MainActivity;
+import com.gamesbykevin.squares.assets.Assets;
+import com.gamesbykevin.squares.screen.MainScreen;
+import com.gamesbykevin.squares.thread.MainThread;
 
 import java.util.Random;
 

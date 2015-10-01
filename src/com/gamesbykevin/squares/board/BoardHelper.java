@@ -1,4 +1,4 @@
-package com.gamesbykevin.squaro.board;
+package com.gamesbykevin.squares.board;
 
 /**
  * Board helper methods
