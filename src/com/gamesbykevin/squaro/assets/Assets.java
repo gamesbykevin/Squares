@@ -3,6 +3,7 @@ package com.gamesbykevin.squaro.assets;
 import android.app.Activity;
 
 import com.gamesbykevin.androidframework.resources.*;
+import com.gamesbykevin.squaro.panel.GamePanel;
 
 /**
  * This class will contain our game assets
@@ -58,7 +59,11 @@ public class Assets
      */
     public enum AudioKey
     {
-        
+        GameoverLose, 
+        MenuSeletion, 
+        Song1, 
+        Song2, 
+        GameoverWin
     }
     
     /**
@@ -86,5 +91,20 @@ public class Assets
         Images.dispose();
         Font.dispose();
         Audio.dispose();
+    }
+    
+    /**
+     * Play a random song, looping enabled
+     */
+    public static void playSong()
+    {
+        //pick random audio
+        Assets.AudioKey key = GamePanel.RANDOM.nextBoolean() ? Assets.AudioKey.Song1 : Assets.AudioKey.Song2;
+
+        //set volume level
+        Audio.setVolume(key, 0.25f);
+
+        //start to play the loop
+        Audio.play(key, true);
     }
 }

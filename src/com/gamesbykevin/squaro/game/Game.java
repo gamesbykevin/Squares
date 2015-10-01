@@ -264,9 +264,6 @@ public final class Game implements IGame
         //create a new board, if it doesn't exist
         if (getBoard() == null)
             this.board = new Board(cols, rows, range);
-            
-        //make sure no existing audio
-        Audio.stop();
         
         //reset the board
         getBoard().reset(cols, rows, range);
@@ -281,7 +278,7 @@ public final class Game implements IGame
             case Timed:
                 
                 //the amount of time remaining will depend on the # of blocks
-                this.totalTime = TIMED_BLOCK_DURATION * (cols * rows);
+                this.totalTime = TIMED_BLOCK_DURATION * ((getBoard().getCols() - 1) * (getBoard().getRows() - 1));
                 
                 //the multiplier will depend on difficulty
                 switch (difficulty)
@@ -327,7 +324,7 @@ public final class Game implements IGame
      */
     public void updateMotionEvent(final MotionEvent event, final float x, final float y)
     {
-        //if no event was applied to the controller
+        //only update game if no controller buttons were clicked
         if (!getController().updateMotionEvent(event, x, y))
         {
             //if the board exists and the action is up
@@ -346,7 +343,10 @@ public final class Game implements IGame
                     screen.setState(MainScreen.State.GameOver);
                     
                     //set display message
-                    screen.getGameoverScreen().setMessage("Game Over, You win");
+                    screen.getScreenGameover().setMessage("Game Over, You win");
+                    
+                    //play sound
+                    Audio.play(Assets.AudioKey.GameoverWin);
                 }
             }
         }
@@ -386,11 +386,14 @@ public final class Game implements IGame
                     //set time to 0
                     this.totalTime = 0;
                     
-                    //set game over state
+                    //play sound
+                    Audio.play(Assets.AudioKey.GameoverLose);
+                    
+                    //set the state
                     screen.setState(MainScreen.State.GameOver);
                     
                     //set display message
-                    screen.getGameoverScreen().setMessage("Time up, You lose");
+                    screen.getScreenGameover().setMessage("Time up, You lose");
                 }
                 break;
                 

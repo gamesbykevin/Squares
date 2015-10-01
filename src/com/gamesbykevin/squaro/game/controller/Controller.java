@@ -10,6 +10,7 @@ import com.gamesbykevin.androidframework.resources.Images;
 
 import com.gamesbykevin.squaro.assets.Assets;
 import com.gamesbykevin.squaro.game.Game;
+import com.gamesbykevin.squaro.panel.GamePanel;
 import com.gamesbykevin.squaro.screen.MainScreen;
 
 import java.util.HashMap;
@@ -137,8 +138,8 @@ public class Controller implements IController
                 //make sure the correct button is showing
                 if (Audio.isAudioEnabled())
                 {
-                    //play sound indicating sound is enabled
-                    //Audio.play(Assets.AudioKey.SettingChange);
+                    //play random song
+                    Assets.playSong();
                 }
                 else
                 {

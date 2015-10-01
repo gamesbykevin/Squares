@@ -90,6 +90,15 @@ public class ExitScreen implements Screen, Disposable
         }
     }
     
+    /**
+     * Reset any necessary screen elements here
+     */
+    @Override
+    public void reset()
+    {
+        //do we need anything here
+    }
+    
     @Override
     public boolean update(final MotionEvent event, final float x, final float y) throws Exception
     {
@@ -101,7 +110,10 @@ public class ExitScreen implements Screen, Disposable
                 screen.setState(MainScreen.State.Running);
                 
                 //play sound effect
-                //Audio.play(Assets.AudioKey.SettingChange);
+                Audio.play(Assets.AudioKey.MenuSeletion);
+                
+                //return true;
+                return false;
             }
             else if (buttons.get(Assets.ImageKey.ConfirmEnabled).contains(x, y))
             {
@@ -109,13 +121,14 @@ public class ExitScreen implements Screen, Disposable
                 screen.setState(MainScreen.State.Ready);
                 
                 //play sound effect
-                //Audio.play(Assets.AudioKey.SettingChange);
+                Audio.play(Assets.AudioKey.MenuSeletion);
+                
+                //return true;
+                return false;
             }
-            
-            return true;
         }
         
-        return false;
+        return true;
     }
     
     @Override

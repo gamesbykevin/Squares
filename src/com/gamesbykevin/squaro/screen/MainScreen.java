@@ -15,6 +15,8 @@ import com.gamesbykevin.squaro.assets.Assets;
 import com.gamesbykevin.squaro.game.Game;
 import com.gamesbykevin.squaro.panel.GamePanel;
 
+import java.util.HashMap;
+
 /**
  * This class will contain the game screens
  * @author ABRAHAM
@@ -38,23 +40,8 @@ public final class MainScreen implements Screen, Disposable
     //our game panel
     private final GamePanel panel;
     
-    //our object containing the main game functionality
-    private Game game;
-    
-    //the menu
-    private MenuScreen menuScreen;
-    
-    //the pause screen
-    private PauseScreen pauseScreen;
-    
-    //the confirm exit screen
-    private ExitScreen exitScreen;
-    
-    //options screen
-    private OptionsScreen optionsScreen;
-    
-    //the gameover screen
-    private GameoverScreen gameoverScreen;
+    //the screens in our main screen
+    private HashMap<State, Screen> screens;
     
     /**
      * The x-coordinate where we want the logo to be displayed
@@ -65,6 +52,11 @@ public final class MainScreen implements Screen, Disposable
      * The y-coordinate where we want the logo to be displayed
      */
     public static final int LOGO_Y = 40;
+    
+    /**
+     * The alpha visibility to apply when darkening the background
+     */
+    private static final int ALPHA_DARK = 175;
     
     /**
      * Create our main screen
@@ -90,123 +82,30 @@ public final class MainScreen implements Screen, Disposable
         //default to the ready state
         this.state = State.Ready;
         
-        //create the menu screens
-        this.menuScreen = new MenuScreen(this);
-        this.pauseScreen = new PauseScreen(this);
-        this.exitScreen = new ExitScreen(this);
-        this.optionsScreen = new OptionsScreen(this);
-        this.gameoverScreen = new GameoverScreen(this);
+        //create new hashmap
+        this.screens = new HashMap<State, Screen>();
+        this.screens.put(State.Ready, new MenuScreen(this));
+        this.screens.put(State.Paused, new PauseScreen(this));
+        this.screens.put(State.Exit, new ExitScreen(this));
+        this.screens.put(State.Options, new OptionsScreen(this));
+        this.screens.put(State.GameOver, new GameoverScreen(this));
+        this.screens.put(State.Running, new GameScreen(this));
     }
     
+    @Override
     public boolean update(final MotionEvent event, final float x, final float y) throws Exception
     {
-        switch (getState())
-        {
-            case Ready:
-                menuScreen.update(event, x, y);
-                break;
-                
-            case Running:
-                if (getGame() != null)
-                    getGame().updateMotionEvent(event, x, y);
-                break;
-                
-            case Paused:
-                pauseScreen.update(event, x, y);
-                break;
-                
-            case Options:
-                optionsScreen.update(event, x, y);
-                break;
-                
-            case Exit:
-                exitScreen.update(event, x, y);
-                break;
-                
-            case GameOver:
-                gameoverScreen.update(event, x, y);
-                break;
-            
-            //this shouldn't happen
-            default:
-                throw new Exception("Undefined state " + state.toString());
-        }
-        
-        //return true for now
-        return true;
-    }
-    
-    /**
-     * Get the game over screen
-     * @return The game over screen reference
-     */
-    public GameoverScreen getGameoverScreen()
-    {
-        return this.gameoverScreen;
-    }
-    
-    /**
-     * Get the options screen
-     * @return The options screen reference
-     */
-    public OptionsScreen getOptionsScreen()
-    {
-        return this.optionsScreen;
+        return getScreen(getState()).update(event, x, y);
     }
     
     /**
      * Update runtime logic here (if needed)
      * @throws Exception 
      */
+    @Override
     public void update() throws Exception
     {
-        switch (getState())
-        {
-            case Ready:
-                break;
-                
-            case Running:
-                if (getGame() != null)
-                    getGame().update();
-                break;
-                
-            case Paused:
-                break;
-                
-            case Options:
-                break;
-                
-            case Exit:
-                break;
-                
-            case GameOver:
-                break;
-            
-            //this shouldn't happen
-            default:
-                throw new Exception("Undefined state " + state.toString());
-        }
-    }
-    
-    protected Game getGame()
-    {
-        return this.game;
-    }
-    
-    /**
-     * Create game object
-     * @throws Exception
-     */
-    public void createGame() throws Exception
-    {
-        if (getGame() == null)
-            this.game = new Game(this);
-        
-        //reset the game
-        getGame().reset(
-            Game.Mode.values()[optionsScreen.getIndexMode()], 
-            Game.Difficulty.values()[optionsScreen.getIndexDifficulty()], 
-            Game.Size.values()[optionsScreen.getIndexSize()]);
+        getScreen(getState()).update();
     }
     
     protected GamePanel getPanel()
@@ -219,26 +118,66 @@ public final class MainScreen implements Screen, Disposable
         return this.state;
     }
     
+    public Screen getScreen(final State state)
+    {
+        return screens.get(state);
+    }
+    
+    public GameoverScreen getScreenGameover()
+    {
+        return (GameoverScreen)screens.get(State.GameOver);
+    }
+    
+    public PauseScreen getScreenPaused()
+    {
+        return (PauseScreen)screens.get(State.Paused);
+    }
+    
+    public GameScreen getScreenGame()
+    {
+        return (GameScreen)screens.get(State.Running);
+    }
+    
+    public OptionsScreen getScreenOptions()
+    {
+        return (OptionsScreen)screens.get(State.Options);
+    }
+    
+    /**
+     * Change the state
+     * @param state The state of the game. Running, Paused, Ready, Game Over, etc..
+     */
     public void setState(final State state)
     {
         //if pausing store the previous state
         if (state == State.Paused)
         {
             //set the previous state
-            pauseScreen.setStatePrevious(getState());
+            getScreenPaused().setStatePrevious(getState());
+        }
+        else if (state == State.GameOver && getState() != State.Paused)
+        {
+            //reset screen
+            getScreen(state).reset();
         }
         
-        //if not in the running state, stop sound and timer
+        //if not in the running state, stop timer
         if (state != State.Running)
         {
             //stop the timer
-            if (getGame() != null)
-                getGame().stopTimer();
+            if (getScreenGame().getGame() != null)
+                getScreenGame().getGame().stopTimer();
             
-            //stop all sound
-            Audio.stop();
+            //if we were previously running stop audio
+            if (getState() == State.Running)
+                Audio.stop();
         }
-        
+        else
+        {
+            //play random song
+            Assets.playSong();
+        }
+            
         //assign the state
         this.state = state;
     }
@@ -247,95 +186,61 @@ public final class MainScreen implements Screen, Disposable
     {
         if (canvas != null)
         {
-            //calculate the screen ratio
-            final float scaleFactorX = getPanel().getWidth() / (float)GamePanel.WIDTH;
-            final float scaleFactorY = getPanel().getHeight() / (float)GamePanel.HEIGHT;
-        
-            //scale to the screen size
-            canvas.scale(scaleFactorX, scaleFactorY);
-            
             //fill background
             canvas.drawColor(Color.BLACK);
             
             //draw the background
             background.render(canvas);
             
-            //render game if exists
-            if (getGame() != null)
-                getGame().render(canvas);
+            //render game screen
+            getScreen(State.Running).render(canvas);
             
             //render the appropriate screen
             switch (getState())
             {
                 case Ready:
                     //darken background
-                    canvas.drawARGB(175, 0, 0, 0);
+                    darkenBackground(canvas);
                     
                     //draw menu
-                    if (menuScreen != null)
-                        menuScreen.render(canvas);
+                    if (getScreen(getState()) != null)
+                        getScreen(getState()).render(canvas);
                     break;
 
-                    //if running, only render the game
                 case Running:
+                    //we are already rendering the game
                     break;
 
                 case Paused:
-                    
-                    switch (pauseScreen.getStatePrevious())
-                    {
-                        case Ready:
-                            //draw menu
-                            if (menuScreen != null)
-                                menuScreen.render(canvas);
-                            break;
-                            
-                        case Running:
-                            break;
-                            
-                        case Options:
-                            if (optionsScreen != null)
-                                optionsScreen.render(canvas);
-                            break;
-                            
-                        case Exit:
-                            if (exitScreen != null)
-                                exitScreen.render(canvas);
-                            break;
-                            
-                        case GameOver:
-                            break;
-                    }
+                    if (getScreenPaused().getStatePrevious() != State.Running)
+                        getScreen(getScreenPaused().getStatePrevious()).render(canvas);
                     
                     //darken background
-                    canvas.drawARGB(175, 0, 0, 0);
+                    darkenBackground(canvas);
                     
-                    if (pauseScreen != null)
-                        pauseScreen.render(canvas);
+                    if (getScreen(getState()) != null)
+                        getScreen(getState()).render(canvas);
                     break;
 
                 case Options:
                     //darken background
-                    canvas.drawARGB(175, 0, 0, 0);
+                    darkenBackground(canvas);
                     
-                    if (optionsScreen != null)
-                        optionsScreen.render(canvas);
+                    if (getScreen(getState()) != null)
+                        getScreen(getState()).render(canvas);
                     break;
                     
                 case Exit:
                     //darken background
-                    canvas.drawARGB(175, 0, 0, 0);
+                    darkenBackground(canvas);
                     
-                    if (exitScreen != null)
-                        exitScreen.render(canvas);
+                    if (getScreen(getState()) != null)
+                        getScreen(getState()).render(canvas);
                     break;
                     
                 case GameOver:
-                    //darken background
-                    canvas.drawARGB(175, 0, 0, 0);
-                    
                     //render game over info
-                    gameoverScreen.render(canvas);
+                    getScreen(getState()).render(canvas);
                     break;
 
                 //this shouldn't happen
@@ -343,6 +248,42 @@ public final class MainScreen implements Screen, Disposable
                     throw new Exception("Undefined state " + state.toString());
             }
         }
+    }
+    
+    /**
+     * Reset any necessary screen elements here
+     */
+    @Override
+    public void reset()
+    {
+        //do we need anything here
+    }
+    
+    /**
+     * Draw an overlay over the background
+     * @param canvas Object we are writing pixel data to
+     * @param alpha The visibility of the overlay range from 0 (0% visible) - 255 (100% visible)
+     */
+    public static final void darkenBackground(final Canvas canvas, int alpha)
+    {
+        //keep in range
+        if (alpha < 0)
+            alpha = 0;
+        if (alpha > 255)
+            alpha = 255;
+        
+        //darken background
+        canvas.drawARGB(alpha, 0, 0, 0);
+    }
+    
+    /**
+     * Draw an overlay over the background
+     * @param canvas Object we are writing pixel data to
+     */
+    public static final void darkenBackground(final Canvas canvas)
+    {
+        //darken background
+        darkenBackground(canvas, ALPHA_DARK);
     }
     
     @Override
@@ -354,40 +295,19 @@ public final class MainScreen implements Screen, Disposable
             background = null;
         }
         
-        if (game != null)
+        if (screens != null)
         {
-            game.dispose();
-            game = null;
-        }
-        
-        if (pauseScreen != null)
-        {
-            pauseScreen.dispose();
-            pauseScreen = null;
-        }
-        
-        if (menuScreen != null)
-        {
-            menuScreen.dispose();
-            menuScreen = null;
-        }
-        
-        if (exitScreen != null)
-        {
-            exitScreen.dispose();
-            exitScreen = null;
-        }
-        
-        if (optionsScreen != null)
-        {
-            optionsScreen.dispose();
-            optionsScreen = null;
-        }
-        
-        if (gameoverScreen != null)
-        {
-            gameoverScreen.dispose();
-            gameoverScreen = null;
+            for (Screen screen : screens.values())
+            {
+                if (screen != null)
+                {
+                    screen.dispose();
+                    screen = null;
+                }
+            }
+            
+            screens.clear();
+            screens = null;
         }
     }
 }

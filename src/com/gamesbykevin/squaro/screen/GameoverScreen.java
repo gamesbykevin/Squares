@@ -36,6 +36,22 @@ public class GameoverScreen implements Screen, Disposable
     //buttons
     private Button restart, mainmenu, rateapp, exitgame;
     
+    //time we have displayed text
+    private long time;
+    
+    /**
+     * The amount of time to wait until we render the game over menu
+     */
+    private static final long DELAY_MENU_DISPLAY = 2250;
+    
+    //do we display the menu
+    private boolean display = false;
+    
+    /**
+     * The alpha visibility when the menu is not shown
+     */
+    private static final int ALPHA_DARK = 75;
+    
     public GameoverScreen(final MainScreen screen)
     {
         //store our parent reference
@@ -89,6 +105,19 @@ public class GameoverScreen implements Screen, Disposable
     }
     
     /**
+     * Reset any necessary screen elements here
+     */
+    @Override
+    public void reset()
+    {
+        //reset timer
+        time = System.currentTimeMillis();
+        
+        //do we display the menu
+        display = false;
+    }
+    
+    /**
      * Assign the message
      * @param message The message we want displayed
      */
@@ -119,59 +148,92 @@ public class GameoverScreen implements Screen, Disposable
     @Override
     public boolean update(final MotionEvent event, final float x, final float y) throws Exception
     {
+        //if we aren't displaying the menu, return false
+        if (!display)
+            return false;
+        
         if (event.getAction() == MotionEvent.ACTION_UP)
         {
             if (restart.contains(x, y))
             {
+                //stop sound
+                Audio.stop();
+                
                 //play sound effect
-                //Audio.play(Assets.AudioKey.SettingChange);
+                Audio.play(Assets.AudioKey.MenuSeletion);
                 
                 //move back to the game
                 screen.setState(MainScreen.State.Running);
                 
                 //restart game with the same settings
-                screen.getGame().reset();
+                screen.getScreenGame().getGame().reset();
             }
             else if (mainmenu.contains(x, y))
             {
+                //stop sound
+                Audio.stop();
+                
                 //play sound effect
-                //Audio.play(Assets.AudioKey.SettingChange);
+                Audio.play(Assets.AudioKey.MenuSeletion);
                 
                 //move to the main menu
                 screen.setState(MainScreen.State.Ready);
             }
             else if (rateapp.contains(x, y))
             {
+                //stop sound
+                Audio.stop();
+                
                 //play sound effect
-                //Audio.play(Assets.AudioKey.SettingChange);
+                Audio.play(Assets.AudioKey.MenuSeletion);
                 
                 //go to rate game page
                 screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_RATE_URL);
             }
             else if (exitgame.contains(x, y))
             {
+                //stop sound
+                Audio.stop();
+                
                 //play sound effect
-                //Audio.play(Assets.AudioKey.SettingChange);
+                Audio.play(Assets.AudioKey.MenuSeletion);
                 
                 //exit game
                 screen.getPanel().getActivity().finish();
             }
-            return true;
         }
         
         //no action was taken here
-        return false;
+        return true;
     }
     
     @Override
     public void update() throws Exception
     {
+        //if not displaying the menu, track timer
+        if (!display)
+        {
+            //if time has passed display menu
+            if (System.currentTimeMillis() - time >= DELAY_MENU_DISPLAY)
+                display = true;
+        }
+        
         //nothing needed to update here
     }
     
     @Override
     public void render(final Canvas canvas) throws Exception
     {
+        //darken background accordingly
+        if (display)
+        {
+            MainScreen.darkenBackground(canvas);
+        }
+        else
+        {
+            MainScreen.darkenBackground(canvas, ALPHA_DARK);
+        }
+        
         if (paint != null)
         {
             //calculate middle
@@ -182,11 +244,15 @@ public class GameoverScreen implements Screen, Disposable
             canvas.drawText(this.message, x, y, paint);
         }
         
-        //render buttons
-        restart.render(canvas, paintButton);
-        rateapp.render(canvas, paintButton);
-        mainmenu.render(canvas, paintButton);
-        exitgame.render(canvas, paintButton);
+        //do we display the menu
+        if (display)
+        {
+            //render buttons
+            restart.render(canvas, paintButton);
+            rateapp.render(canvas, paintButton);
+            mainmenu.render(canvas, paintButton);
+            exitgame.render(canvas, paintButton);
+        }
     }
     
     @Override

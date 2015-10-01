@@ -96,7 +96,7 @@ public final class Board extends Entity implements IBoard
      * Get the columns
      * @return Column dimension of the current board
      */
-    protected int getCols()
+    public int getCols()
     {
         return this.cols;
     }
@@ -105,7 +105,7 @@ public final class Board extends Entity implements IBoard
      * Get the rows
      * @return Row dimension of the current board
      */
-    protected int getRows()
+    public int getRows()
     {
         return this.rows;
     }

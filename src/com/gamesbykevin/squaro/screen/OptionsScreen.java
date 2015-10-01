@@ -186,6 +186,15 @@ public class OptionsScreen implements Screen, Disposable
         this.back.positionText(paint);
     }
     
+    /**
+     * Reset any necessary screen elements here
+     */
+    @Override
+    public void reset()
+    {
+        //do we need anything here
+    }
+    
     @Override
     public boolean update(final MotionEvent event, final float x, final float y) throws Exception
     {
@@ -194,13 +203,13 @@ public class OptionsScreen implements Screen, Disposable
             if (back.contains(x, y))
             {
                 //play sound effect
-                //Audio.play(Assets.AudioKey.SettingChange);
+                Audio.play(Assets.AudioKey.MenuSeletion);
                 
                 //set ready state
                 screen.setState(MainScreen.State.Ready);
                 
                 //no need to continue
-                return true;
+                return false;
             }
             
             for (Button button : sounds)
@@ -211,10 +220,10 @@ public class OptionsScreen implements Screen, Disposable
                     Audio.setAudioEnabled(!Audio.isAudioEnabled());
                     
                     //play sound effect
-                    //Audio.play(Assets.AudioKey.SettingChange);
+                    Audio.play(Assets.AudioKey.MenuSeletion);
                     
                     //exit loop
-                    return true;
+                    return false;
                 }
             }
             
@@ -223,7 +232,7 @@ public class OptionsScreen implements Screen, Disposable
                 if (button.contains(x, y))
                 {
                     //play sound effect
-                    //Audio.play(Assets.AudioKey.SettingChange);
+                    Audio.play(Assets.AudioKey.MenuSeletion);
                     
                     //increase index
                     this.indexMode++;
@@ -232,7 +241,7 @@ public class OptionsScreen implements Screen, Disposable
                         this.indexMode = 0;
                     
                     //no need to continue
-                    return true;
+                    return false;
                 }
             }
             
@@ -241,7 +250,7 @@ public class OptionsScreen implements Screen, Disposable
                 if (button.contains(x, y))
                 {
                     //play sound effect
-                    //Audio.play(Assets.AudioKey.SettingChange);
+                    Audio.play(Assets.AudioKey.MenuSeletion);
                     
                     //increase index
                     this.indexSize++;
@@ -250,7 +259,7 @@ public class OptionsScreen implements Screen, Disposable
                         this.indexSize = 0;
                     
                     //no need to continue
-                    return true;
+                    return false;
                 }
             }
             
@@ -259,7 +268,7 @@ public class OptionsScreen implements Screen, Disposable
                 if (button.contains(x, y))
                 {
                     //play sound effect
-                    //Audio.play(Assets.AudioKey.SettingChange);
+                    Audio.play(Assets.AudioKey.MenuSeletion);
                     
                     //increase index
                     this.indexDifficulty++;
@@ -268,13 +277,13 @@ public class OptionsScreen implements Screen, Disposable
                         this.indexDifficulty = 0;
                     
                     //no need to continue
-                    return true;
+                    return false;
                 }
             }
         }
         
-        //return false
-        return false;
+        //return true
+        return true;
     }
     
     @Override

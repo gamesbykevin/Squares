@@ -79,6 +79,15 @@ public class PauseScreen implements Screen, Disposable
         return this.previous;
     }
     
+    /**
+     * Reset any necessary screen elements here
+     */
+    @Override
+    public void reset()
+    {
+        //do we need anything here
+    }
+    
     @Override
     public boolean update(final MotionEvent event, final float x, final float y) throws Exception
     {
@@ -86,12 +95,10 @@ public class PauseScreen implements Screen, Disposable
         {
             //return to the previous state
             screen.setState(previous);
-            
-            //return true
-            return true;
         }
         
-        return false;
+        //return true
+        return true;
     }
     
     @Override

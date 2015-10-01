@@ -237,7 +237,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Di
             {
                 //make sure the screen object exists
                 if (screen != null)
+                {
+                    //calculate the screen ratio
+                    final float scaleFactorX = getWidth() / (float)GamePanel.WIDTH;
+                    final float scaleFactorY = getHeight() / (float)GamePanel.HEIGHT;
+
+                    //scale to the screen size
+                    canvas.scale(scaleFactorX, scaleFactorY);
+            
+                    //render the main sreen containing the game and other screens
                     screen.render(canvas);
+                }
             }
             catch (Exception e)
             {
