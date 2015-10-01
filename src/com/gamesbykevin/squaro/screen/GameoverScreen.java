@@ -50,7 +50,13 @@ public class GameoverScreen implements Screen, Disposable
     /**
      * The alpha visibility when the menu is not shown
      */
-    private static final int ALPHA_DARK = 75;
+    private static final int ALPHA_DARK = 175;
+    
+    /**
+     * The alpha visibility when the menu is not shown
+     */
+    private static final int ALPHA_DARK_OTHER = 125;
+    
     
     public GameoverScreen(final MainScreen screen)
     {
@@ -135,7 +141,7 @@ public class GameoverScreen implements Screen, Disposable
         
         //assign metrics
         paint.setColor(Color.WHITE);
-        paint.setTextSize(32f);
+        paint.setTextSize(34f);
         paint.setTypeface(Font.getFont(Assets.FontKey.Default));
         
         //get the rectangle around the message
@@ -227,7 +233,7 @@ public class GameoverScreen implements Screen, Disposable
         //darken background accordingly
         if (display)
         {
-            MainScreen.darkenBackground(canvas);
+            MainScreen.darkenBackground(canvas, ALPHA_DARK_OTHER);
         }
         else
         {
