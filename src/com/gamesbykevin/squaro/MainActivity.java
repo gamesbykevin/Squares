@@ -27,7 +27,7 @@ public class MainActivity extends Activity
     /**
      * The url that contains the instructions for the game
      */
-    public static final String WEBPAGE_GAME_INSTRUCTIONS_URL = "http://gamesbykevin.com/2015/09/20/falling-blocks/";
+    public static final String WEBPAGE_GAME_INSTRUCTIONS_URL = "http://gamesbykevin.com/2015/10/01/squaro/";
     
     /** Called when the activity is first created. */
     @Override
