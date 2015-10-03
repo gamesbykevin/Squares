@@ -172,7 +172,7 @@ public class MenuScreen implements Screen, Disposable
                 Audio.play(Assets.AudioKey.MenuSeletion);
                 
                 //go to web page
-                //this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_RATE_URL);
+                this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_RATE_URL);
             }
             else if (buttons.get(Key.More).contains(x, y))
             {
