@@ -101,6 +101,12 @@ public class Assets
         //pick random audio
         Assets.AudioKey key = GamePanel.RANDOM.nextBoolean() ? Assets.AudioKey.Song1 : Assets.AudioKey.Song2;
 
+        //make sure the other audio doesn't continue to play
+        if (key != Assets.AudioKey.Song1)
+            Audio.stop(Assets.AudioKey.Song1);
+        if (key != Assets.AudioKey.Song2)
+            Audio.stop(Assets.AudioKey.Song2);
+        
         //set volume level
         Audio.setVolume(key, 0.25f);
 

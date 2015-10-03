@@ -177,7 +177,7 @@ public final class MainScreen implements Screen, Disposable
             //play random song
             Assets.playSong();
         }
-            
+        
         //assign the state
         this.state = state;
     }
