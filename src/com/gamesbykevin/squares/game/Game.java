@@ -3,11 +3,9 @@ package com.gamesbykevin.squares.game;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.SystemClock;
 import android.view.MotionEvent;
 
 import com.gamesbykevin.androidframework.resources.Audio;
-import com.gamesbykevin.androidframework.resources.Disposable;
 
 import com.gamesbykevin.squares.assets.Assets;
 import com.gamesbykevin.squares.board.Board;
@@ -15,9 +13,6 @@ import com.gamesbykevin.squares.board.BoardHelper;
 import com.gamesbykevin.squares.game.controller.Controller;
 
 import com.gamesbykevin.squares.screen.MainScreen;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The main game logic will happen here

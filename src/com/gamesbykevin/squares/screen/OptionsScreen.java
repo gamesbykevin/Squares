@@ -81,7 +81,7 @@ public class OptionsScreen implements Screen, Disposable
         this.sounds = new ArrayList<Button>();
         
         Button button = new Button(Images.getImage(Assets.ImageKey.Button));
-        button.setText("Sound: Disabled");
+        button.addDescription("Sound: Disabled");
         button.setX(x);
         button.setY(y);
         button.updateBounds();
@@ -90,7 +90,7 @@ public class OptionsScreen implements Screen, Disposable
         this.sounds.add(button);
         
         button = new Button(Images.getImage(Assets.ImageKey.Button));
-        button.setText("Sound: Enabled");
+        button.addDescription("Sound: Enabled");
         button.setX(x);
         button.setY(y);
         button.updateBounds();
@@ -108,7 +108,7 @@ public class OptionsScreen implements Screen, Disposable
             button = new Button(Images.getImage(Assets.ImageKey.Button));
             
             //set the description
-            button.setText("Mode: " + mode.getDescription());
+            button.addDescription("Mode: " + mode.getDescription());
             
             //assign location
             button.setX(x);
@@ -134,7 +134,7 @@ public class OptionsScreen implements Screen, Disposable
             button = new Button(Images.getImage(Assets.ImageKey.Button));
             
             //set the description
-            button.setText("Difficutly: " + diff.getDescription());
+            button.addDescription("Difficutly: " + diff.getDescription());
             
             //assign location
             button.setX(x);
@@ -160,7 +160,7 @@ public class OptionsScreen implements Screen, Disposable
             button = new Button(Images.getImage(Assets.ImageKey.Button));
             
             //set the description
-            button.setText("Size: " + size.getDescription());
+            button.addDescription("Size: " + size.getDescription());
             
             //assign location
             button.setX(x);
@@ -179,7 +179,7 @@ public class OptionsScreen implements Screen, Disposable
         y += incrementY;
         //the back button
         this.back = new Button(Images.getImage(Assets.ImageKey.Button));
-        this.back.setText("Go Back");
+        this.back.addDescription("Go Back");
         this.back.setX(x);
         this.back.setY(y);
         this.back.updateBounds();

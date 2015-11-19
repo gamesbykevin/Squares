@@ -12,7 +12,6 @@ import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.androidframework.screen.Screen;
 
 import com.gamesbykevin.squares.assets.Assets;
-import com.gamesbykevin.squares.game.Game;
 import com.gamesbykevin.squares.panel.GamePanel;
 
 import java.util.HashMap;

@@ -71,42 +71,42 @@ public class MenuScreen implements Screen, Disposable
         tmp = new Button(Images.getImage(Assets.ImageKey.Button));
         tmp.setX(x);
         tmp.setY(y);
-        tmp.setText("Begin Game");
+        tmp.addDescription("Begin Game");
         this.buttons.put(Key.Start, tmp);
         
         y += incrementY;
         tmp = new Button(Images.getImage(Assets.ImageKey.Button));
         tmp.setX(x);
         tmp.setY(y);
-        tmp.setText("Options");
+        tmp.addDescription("Options");
         this.buttons.put(Key.Settings, tmp);
         
         y += incrementY;
         tmp = new Button(Images.getImage(Assets.ImageKey.Button));
         tmp.setX(x);
         tmp.setY(y);
-        tmp.setText("Instuctions");
+        tmp.addDescription("Instuctions");
         this.buttons.put(Key.Instructions, tmp);
         
         y += incrementY;
         tmp = new Button(Images.getImage(Assets.ImageKey.Button));
         tmp.setX(x);
         tmp.setY(y);
-        tmp.setText(BUTTON_TEXT_RATE_APP);
+        tmp.addDescription(BUTTON_TEXT_RATE_APP);
         this.buttons.put(Key.Rate, tmp);
         
         y += incrementY;
         tmp = new Button(Images.getImage(Assets.ImageKey.Button));
         tmp.setX(x);
         tmp.setY(y);
-        tmp.setText("More Games");
+        tmp.addDescription("More Games");
         this.buttons.put(Key.More, tmp);
         
         y += incrementY;
         tmp = new Button(Images.getImage(Assets.ImageKey.Button));
         tmp.setX(x);
         tmp.setY(y);
-        tmp.setText(BUTTON_TEXT_EXIT_GAME);
+        tmp.addDescription(BUTTON_TEXT_EXIT_GAME);
         this.buttons.put(Key.Exit, tmp);
         
         //create new paint object
