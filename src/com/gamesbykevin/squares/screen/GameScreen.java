@@ -4,7 +4,6 @@ import android.graphics.Canvas;
 import android.view.MotionEvent;
 import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.screen.Screen;
-import com.gamesbykevin.squares.assets.Assets;
 import com.gamesbykevin.squares.game.Game;
 
 /**
@@ -40,12 +39,9 @@ public class GameScreen implements Screen, Disposable
         
         //reset the game
         getGame().reset(
-            Game.Mode.values()[screen.getScreenOptions().getIndexMode()], 
-            Game.Difficulty.values()[screen.getScreenOptions().getIndexDifficulty()], 
-            Game.Size.values()[screen.getScreenOptions().getIndexSize()]);
-        
-        //play random song
-        Assets.playSong();
+            Game.Mode.values()[screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_MODE)], 
+            Game.Difficulty.values()[screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_DIFFICULTY)]
+        );
     }
     
     /**
@@ -61,7 +57,7 @@ public class GameScreen implements Screen, Disposable
     public boolean update(final MotionEvent event, final float x, final float y) throws Exception
     {
         if (getGame() != null)
-            getGame().updateMotionEvent(event, x, y);
+            getGame().update(event, x, y);
         
         return true;
     }

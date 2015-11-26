@@ -1,8 +1,10 @@
 package com.gamesbykevin.squares.board;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 
 import com.gamesbykevin.androidframework.resources.Disposable;
+import com.gamesbykevin.squares.assets.Assets;
 
 /**
  * Each board will need to implement this
@@ -18,18 +20,18 @@ public interface IBoard extends Disposable
     public void update(final float x, final float y);
     
     /**
-     * Reset the board
-     * @param cols Total columns on the board
-     * @param rows Total rows on the board
-     * @param range The difficulty range
+     * Reset the board at the assigned level
+     * @param key The asset key for the desired text file
+     * @param levelIndex The selected level to reset
      * @throws Exception
      */
-    public void reset(final int cols, final int rows, final int range) throws Exception;
+    public void reset(final Assets.TextKey key, final int levelIndex) throws Exception;
     
     /**
      * Render the board
      * @param canvas Object to write pixels to
+     * @param paint Object to draw text
      * @throws Exception
      */
-    public void render(final Canvas canvas) throws Exception;
+    public void render(final Canvas canvas, final Paint paint) throws Exception;
 }

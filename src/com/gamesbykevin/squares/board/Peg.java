@@ -12,11 +12,11 @@ import com.gamesbykevin.squares.assets.Assets;
 public final class Peg extends Entity
 {
     /**
-     * Each type of peg fill
+     * Each type of peg fill, keep in this order so the animation will be mapped correctly
      */
     public enum Fill
     {
-        Empty, OneQuarter, Half, ThreeQuarters, Full
+        Empty, OneQuarter, Half, ThreeQuarters, Full, Flagged
     }
     
     /**
@@ -26,6 +26,11 @@ public final class Peg extends Entity
     
     //the number of selections for this peg
     private int range;
+    
+    /**
+     * The ratio to check for our contains() method
+     */
+    private static final float CONTAINS_RATIO = .75f;
     
     /**
      * Create new peg
@@ -66,8 +71,7 @@ public final class Peg extends Entity
      */
     public void setRange(final int range) throws Exception
     {
-        if (range != Board.DIFFICULTY_RANGE_EASY && range != Board.DIFFICULTY_RANGE_MEDIUM && 
-            range != Board.DIFFICULTY_RANGE_HARD)
+        if (range != Board.DIFFICULTY_RANGE_DEFAULT && range != Board.DIFFICULTY_RANGE_EVIL)
             throw new Exception("Invalid range assigned - " + range);
         
         this.range = range;
@@ -83,15 +87,48 @@ public final class Peg extends Entity
     }
     
     /**
+     * Is the location inside the peg boundary?<br>
+     * Here we add additional padding to check for collision.<br>
+     * We will take the current (x, y) and check within 66% of the dimension to see
+     * @param x x-coordinate
+     * @param y y-coordinate
+     * @return true if the specified (x,y) is close enough to the assigned (x,y) of this peg, false otherwise
+     */
+    public boolean contains(final float x, final float y)
+    {
+    	//make sure the x coordinate is inside our invisible boundary
+    	if (x >= getX() - (getWidth() * CONTAINS_RATIO) && x <= getX() + (getWidth() * CONTAINS_RATIO))
+    	{
+    		//make sure the y coordinate is inside our invisible boundary
+    		if (y >= getY() - (getHeight() * CONTAINS_RATIO) && y <= getY() + (getHeight() * CONTAINS_RATIO))
+    			return true;
+    	}
+    	
+    	//coordinates are not within the area, return false
+    	return false;
+    }
+    
+    /**
      * Assign the animation
      * @param count The count for the peg
+     * @param flagged Is the peg flagged where we can't select
      * @throws Exception If range is not setup or invalid count provided
      */
-    public void setAnimation(final int count) throws Exception
+    public void setAnimation(final int count, final boolean flagged) throws Exception
     {
+    	//if flagged the animation will be different
+    	if (flagged)
+    	{
+    		//set animation
+    		getSpritesheet().setKey(Fill.Flagged);
+    		
+    		//no need to continue
+    		return;
+    	}
+    	
         switch (getRange())
         {
-            case Board.DIFFICULTY_RANGE_EASY:
+            case Board.DIFFICULTY_RANGE_DEFAULT:
                 switch (count)
                 {
                     case 0:
@@ -99,26 +136,6 @@ public final class Peg extends Entity
                         break;
                         
                     case 1:
-                        getSpritesheet().setKey(Fill.Full);
-                        break;
-                        
-                    default:
-                        throw new Exception("Invalid count provided - " + count);
-                }
-                break;
-            
-            case Board.DIFFICULTY_RANGE_MEDIUM:
-                switch (count)
-                {
-                    case 0:
-                        getSpritesheet().setKey(Fill.Empty);
-                        break;
-                        
-                    case 1:
-                        getSpritesheet().setKey(Fill.Half);
-                        break;
-                        
-                    case 2:
                         getSpritesheet().setKey(Fill.Full);
                         break;
                         
@@ -127,7 +144,7 @@ public final class Peg extends Entity
                 }
                 break;
                 
-            case Board.DIFFICULTY_RANGE_HARD:
+            case Board.DIFFICULTY_RANGE_EVIL:
                 switch (count)
                 {
                     case 0:
@@ -135,18 +152,10 @@ public final class Peg extends Entity
                         break;
                         
                     case 1:
-                        getSpritesheet().setKey(Fill.OneQuarter);
-                        break;
-                        
-                    case 2:
                         getSpritesheet().setKey(Fill.Half);
                         break;
                         
-                    case 3:
-                        getSpritesheet().setKey(Fill.ThreeQuarters);
-                        break;
-                        
-                    case 4:
+                    case 2:
                         getSpritesheet().setKey(Fill.Full);
                         break;
                         

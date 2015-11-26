@@ -5,14 +5,20 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.MotionEvent;
 
+import com.gamesbykevin.androidframework.awt.Button;
+import com.gamesbykevin.androidframework.level.Select;
 import com.gamesbykevin.androidframework.resources.Audio;
-
+import com.gamesbykevin.androidframework.resources.Images;
+import com.gamesbykevin.androidframework.text.TimeFormat;
 import com.gamesbykevin.squares.assets.Assets;
 import com.gamesbykevin.squares.board.Board;
 import com.gamesbykevin.squares.board.BoardHelper;
 import com.gamesbykevin.squares.game.controller.Controller;
-
+import com.gamesbykevin.squares.panel.GamePanel;
+import com.gamesbykevin.squares.scorecard.Score;
+import com.gamesbykevin.squares.scorecard.ScoreCard;
 import com.gamesbykevin.squares.screen.MainScreen;
+import com.gamesbykevin.squares.screen.OptionsScreen;
 
 /**
  * The main game logic will happen here
@@ -25,6 +31,9 @@ public final class Game implements IGame
     
     //the controller for our game
     private Controller controller;
+    
+    //the game score card
+    private ScoreCard scoreCard;
     
     /**
      * The different game modes
@@ -54,7 +63,9 @@ public final class Game implements IGame
     {
         Easy("Easy"),
         Normal("Normal"),
-        Hard("Hard");
+        Hard("Hard"),
+        Expert("Expert"),
+        Twisted("Twisted");
         
         private final String desc;
         
@@ -69,64 +80,39 @@ public final class Game implements IGame
         }
     }
     
-    /**
-     * The size of the board
-     */
-    public enum Size
-    {
-        Medium("Medium"),
-        Large("Large"),
-        VeryLarge("Very Large"),
-        VeryLong("Very Long"),
-        Small("Small");
-        
-        private final String desc;
-        
-        private Size(final String desc)
-        {
-            this.desc = desc;
-        }
-        
-        public String getDescription()
-        {
-            return this.desc;
-        }
-    }
-    
-    //the board where gameplay will take place
+    //the board where game play will take place
     private Board board;
     
-    //store the settings
-    private int cols, rows, range;
+    //our level select object
+    private Select levelSelect;
     
-    //store game settings
+    //store mode setting
     private Mode mode;
+    
+    //store difficulty setting
     private Difficulty difficulty;
-    private Size size;
     
     /**
      * For timed mode, the number of blocks will be a factor to determine the time remaining
      */
-    private static final long TIMED_BLOCK_DURATION = 5000L;
+    private static final long TIMED_BLOCK_DURATION = 10000L;
     
     /**
-     * Timed multiplier for each difficulty
+     * The multiplier to the timer for timed mode if the difficulty is the hardest
      */
-    private static final float TIMED_MULTIPLIER_EASY = 1.0f;
-    private static final float TIMED_MULTIPLIER_NORMAL = 1.5f;
-    private static final float TIMED_MULTIPLIER_HARD = 2.25f;
+    private static final double TWISTED_DIFFICULTY_MULTIPLIER = 1.5;
     
-    //where the difficulty is displayed
-    private static final int LOCATION_TIMER_X = 100;
-    private static final int LOCATION_TIMER_Y = 580;
+    //where the timer is displayed
+    public static final int LOCATION_TIMER_X = 100;
+    public static final int LOCATION_TIMER_Y = 600;
     
     //where the difficulty is displayed
     private static final int LOCATION_DIFFICULTY_X = 100;
-    private static final int LOCATION_DIFFICULTY_Y = 615;
+    private static final int LOCATION_DIFFICULTY_Y = LOCATION_TIMER_Y + 40;
     
-    //where the size is displayed
-    private static final int LOCATION_SIZE_X = 100;
-    private static final int LOCATION_SIZE_Y = 650;
+    //where the level is displayed
+    private static final int LOCATION_LEVEL_X = 100;
+    private static final int LOCATION_LEVEL_Y = LOCATION_DIFFICULTY_Y + 40;
     
     //paint object to draw text
     private Paint paint;
@@ -137,6 +123,9 @@ public final class Game implements IGame
     //track the previous time (milliseconds)
     private long previousTime = 0L;
     
+    //the time if we are counting down, used for display purposes
+    private long countdownTime = 0L;
+    
     //do we stop the timer
     private boolean stopTimer = false;
     
@@ -145,6 +134,9 @@ public final class Game implements IGame
         //our main screen object reference
         this.screen = screen;
         
+        //create score card
+        this.scoreCard = new ScoreCard(this, screen.getPanel().getActivity());
+        
         //create new paint object
         this.paint = new Paint();
         this.paint.setTextSize(24f);
@@ -152,6 +144,20 @@ public final class Game implements IGame
         
         //create new controller
         this.controller = new Controller(this);
+        
+        //create the level select screen
+        this.levelSelect = new Select();
+        this.levelSelect.setButtonNext(new Button(Images.getImage(Assets.ImageKey.PageNext)));
+        this.levelSelect.setButtonOpen(new Button(Images.getImage(Assets.ImageKey.LevelNotSolved)));
+        this.levelSelect.setButtonPrevious(new Button(Images.getImage(Assets.ImageKey.PagePrevious)));
+        this.levelSelect.setButtonSolved(new Button(Images.getImage(Assets.ImageKey.LevelSolved)));
+        this.levelSelect.setCols(5);
+        this.levelSelect.setRows(8);
+        this.levelSelect.setDimension(80);
+        this.levelSelect.setDescription("", (GamePanel.WIDTH / 2) - 75, GamePanel.HEIGHT - 75);
+        this.levelSelect.setPadding(5);
+        this.levelSelect.setStartX(25);
+        this.levelSelect.setStartY(15);
     }
     
     /**
@@ -173,6 +179,15 @@ public final class Game implements IGame
     }
     
     /**
+     * Get the score card
+     * @return Our list of levels and the high score for this player
+     */
+    public ScoreCard getScorecard()
+    {
+    	return this.scoreCard;
+    }
+    
+    /**
      * Stop the timer
      */
     public void stopTimer()
@@ -184,69 +199,53 @@ public final class Game implements IGame
      * Reset game with the specified settings
      * @param mode Game mode
      * @param difficulty Game difficulty
-     * @param size Board size
      * @throws Exception 
      */
-    public void reset(final Mode mode, final Difficulty difficulty, final Size size) throws Exception
+    public void reset(final Mode mode, final Difficulty difficulty) throws Exception
     {
         //assign settings
         this.mode = mode;
-        this.size = size;
         this.difficulty = difficulty;
         
-        //assign the range
+        //reset level select info
+        getLevelSelect().reset();
+        
+        //determine how many levels there are
         switch (difficulty)
         {
-            case Normal:
-                range = Board.DIFFICULTY_RANGE_MEDIUM;
-                break;
-                
-            case Easy:
-                range = Board.DIFFICULTY_RANGE_EASY;
-                break;
-                
-            case Hard:
-                range = Board.DIFFICULTY_RANGE_HARD;
-                break;
-                
-            default:
-                throw new Exception("Difficulty not setup - " + difficulty.toString());
+		    case Easy:
+		    	getLevelSelect().setTotal(301);
+		    	break;
+		    	
+		    case Normal:
+		    	getLevelSelect().setTotal(299);
+		    	break;
+		    	
+		    case Hard:
+		    	getLevelSelect().setTotal(225);
+		    	break;
+		    	
+		    case Expert:
+		    	getLevelSelect().setTotal(100);
+		    	break;
+		    	
+		    case Twisted:
+		    	getLevelSelect().setTotal(100);
+		    	break;
+		    	
+			default:
+				throw new Exception("Difficulty not setup here:" + difficulty.toString());
         }
         
-        //assign the size
-        switch (size)
+        //load the saved data
+        for (int levelIndex = 0; levelIndex < getLevelSelect().getTotal(); levelIndex++)
         {
-            case Small:
-                cols = Board.SIZE_SMALL;
-                rows = Board.SIZE_SMALL;
-                break;
-                
-            case Medium:
-                cols = Board.SIZE_MEDIUM;
-                rows = Board.SIZE_MEDIUM;
-                break;
-                
-            case Large:
-                cols = Board.SIZE_LARGE;
-                rows = Board.SIZE_LARGE;
-                break;
-                
-            case VeryLarge:
-                cols = Board.SIZE_VERY_LARGE;
-                rows = Board.SIZE_VERY_LARGE;
-                break;
-                
-            case VeryLong:
-                cols = Board.SIZE_VERY_LARGE + Board.SIZE_SMALL;
-                rows = Board.SIZE_VERY_LARGE + Board.SIZE_MEDIUM;
-                break;
-                
-            default:
-                throw new Exception("Size not setup here - " + size.toString());
+        	//get the score for the specified level and difficulty
+        	Score score = getScorecard().getScore(levelIndex, screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_DIFFICULTY));
+        	
+        	//mark completed if the score object exists
+        	getLevelSelect().setCompleted(levelIndex, (score != null));
         }
-        
-        //reset game
-        reset();
     }
     
     /**
@@ -258,41 +257,66 @@ public final class Game implements IGame
     {
         //create a new board, if it doesn't exist
         if (getBoard() == null)
-            this.board = new Board(cols, rows, range);
+            this.board = new Board();
         
         //reset the board
-        getBoard().reset(cols, rows, range);
+        switch (difficulty)
+        {
+		    case Easy:
+		    	getBoard().reset(Assets.TextKey.Easy, getLevelSelect().getLevelIndex());
+		    	break;
+		    	
+		    case Normal:
+		    	getBoard().reset(Assets.TextKey.Normal, getLevelSelect().getLevelIndex());
+		    	break;
+		    	
+		    case Hard:
+		    	getBoard().reset(Assets.TextKey.Hard, getLevelSelect().getLevelIndex());
+		    	break;
+		    	
+		    case Expert:
+		    	getBoard().reset(Assets.TextKey.Expert, getLevelSelect().getLevelIndex());
+		    	break;
+		    	
+		    case Twisted:
+		    	getBoard().reset(Assets.TextKey.Twisted, getLevelSelect().getLevelIndex());
+		    	break;
+		    	
+			default:
+				throw new Exception("Difficulty not setup here:" + difficulty.toString());
+        }
+        
+        //reset the timer
+        this.totalTime = 0;
         
         //setup the game mode
         switch (mode)
         {
+        	//no need to do anything here
             case Default:
-                this.totalTime = 0;
                 break;
                 
+            //the amount of time remaining will depend on the # of blocks
             case Timed:
-                
-                //the amount of time remaining will depend on the # of blocks
-                this.totalTime = TIMED_BLOCK_DURATION * ((getBoard().getCols() - 1) * (getBoard().getRows() - 1));
-                
-                //the multiplier will depend on difficulty
-                switch (difficulty)
-                {
-                    case Easy:
-                        this.totalTime *= TIMED_MULTIPLIER_EASY;
-                        break;
-                        
-                    case Normal:
-                        this.totalTime *= TIMED_MULTIPLIER_NORMAL;
-                        break;
-                        
-                    case Hard:
-                        this.totalTime *= TIMED_MULTIPLIER_HARD;
-                        break;
-                        
-                    default:
-                        throw new Exception("Difficulty not setup here - " + difficulty.toString());
-                }
+            	//get the score for the specified level and difficulty
+            	Score score = getScorecard().getScore(
+            		getLevelSelect().getLevelIndex(), 
+            		screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_DIFFICULTY));
+            	
+            	//if score exists, the count down will be the best time
+            	if (score != null)
+            	{
+            		this.countdownTime = score.getTime();
+            	}
+            	else
+            	{
+            		//calculate the time limit
+            		this.countdownTime = TIMED_BLOCK_DURATION * ((getBoard().getCols() - 1) * (getBoard().getRows() - 1));
+            		
+            		//the hardest difficulty we multiply the timer
+                	if (difficulty == Difficulty.Twisted)
+                		this.countdownTime *= TWISTED_DIFFICULTY_MULTIPLIER;
+            	}
                 break;
                 
             default:
@@ -312,15 +336,44 @@ public final class Game implements IGame
     }
     
     /**
+     * Get the level select
+     * @return The level select object
+     */
+    public Select getLevelSelect()
+    {
+    	return this.levelSelect;
+    }
+    
+    /**
+     * Get the time
+     * @return The total time elapsed milliseconds
+     */
+    public long getTime()
+    {
+    	return this.totalTime;
+    }
+    
+    /**
      * Update the game based on the motion event
      * @param event Motion Event
      * @param x (x-coordinate)
      * @param y (y-coordinate)
      */
-    public void updateMotionEvent(final MotionEvent event, final float x, final float y)
+    public void update(final MotionEvent event, final float x, final float y)
     {
+    	//if we don't have a selection
+    	if (!getLevelSelect().hasSelection())
+    	{
+    		//if action up, check the location
+    		if (event.getAction() == MotionEvent.ACTION_UP)
+    			getLevelSelect().setCheck((int)x, (int)y);
+    		
+    		//don't continue
+    		return;
+    	}
+    	
         //only update game if no controller buttons were clicked
-        if (!getController().updateMotionEvent(event, x, y))
+        if (!getController().update(event, x, y))
         {
             //if the board exists and the action is up
             if (getBoard() != null && event.getAction() == MotionEvent.ACTION_UP)
@@ -334,6 +387,24 @@ public final class Game implements IGame
                 //if we now have a match
                 if (!match && BoardHelper.hasMatch(getBoard()))
                 {
+                    //update the score card
+                    getScorecard().update(
+                		getLevelSelect().getLevelIndex(),
+                		screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_DIFFICULTY),
+                    	getTime()
+                    );
+                    
+                    //load the saved data
+                    for (int levelIndex = 0; levelIndex < getLevelSelect().getTotal(); levelIndex++)
+                    {
+                    	//get the score for the specified level and difficulty
+                    	Score score = getScorecard().getScore(levelIndex, screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_DIFFICULTY)); 
+                    	
+                    	//mark completed if the score object exists
+                    	getLevelSelect().setCompleted(levelIndex, (score != null));
+                    }
+                    
+                	
                     //set game over state
                     screen.setState(MainScreen.State.GameOver);
                     
@@ -353,6 +424,19 @@ public final class Game implements IGame
      */
     public void update() throws Exception
     {
+    	if (!getLevelSelect().hasSelection())
+    	{
+    		//update the object
+    		getLevelSelect().update();
+    		
+    		//if we have a selection now, reset the board
+    		if (getLevelSelect().hasSelection())
+    			reset();
+    		
+    		//no need to continue
+    		return;
+    	}
+    	
         //if we stopped the timer, record the previous time
         if (this.stopTimer)
         {
@@ -363,29 +447,30 @@ public final class Game implements IGame
         //get the current time
         final long current = System.currentTimeMillis();
         
+        //add the difference to the total time
+        this.totalTime += (current - previousTime);
+        
         //the timer will behave different depending on the mode
         switch (mode)
         {
+        	//don't need to do anything here
             case Default:
-                //add the difference to the total time
-                this.totalTime += (current - previousTime);
                 break;
                 
+            //check if time has run out
             case Timed:
-                //subtract the difference to the total time
-                this.totalTime = totalTime - (current - previousTime);
-                
+            	
                 //don't let the time go below 0
-                if (this.totalTime < 0)
+                if (this.countdownTime - this.totalTime < 0)
                 {
                     //set time to 0
-                    this.totalTime = 0;
-                    
-                    //play sound
-                    Audio.play(Assets.AudioKey.GameoverLose);
+                    this.totalTime = this.countdownTime;
                     
                     //set the state
                     screen.setState(MainScreen.State.GameOver);
+                    
+                    //play sound
+                    Audio.play(Assets.AudioKey.GameoverLose);
                     
                     //set display message
                     screen.getScreenGameover().setMessage("Time up, You lose");
@@ -415,6 +500,12 @@ public final class Game implements IGame
             board = null;
         }
         
+        if (levelSelect != null)
+        {
+        	levelSelect.dispose();
+        	levelSelect = null;
+        }
+        
         if (paint != null)
             paint = null;
     }
@@ -426,27 +517,55 @@ public final class Game implements IGame
      */
     public void render(final Canvas canvas) throws Exception
     {
+    	if (!getLevelSelect().hasSelection())
+    	{
+    		//render level select screen
+    		getLevelSelect().render(canvas, this.paint);
+    		
+    		//no need to continue
+    		return;
+    	}
+    	
         //draw the game controller
         if (getController() != null)
             getController().render(canvas);
         
         if (getBoard() != null)
-            getBoard().render(canvas);
+            getBoard().render(canvas, paint);
         
-        //draw stats
-        canvas.drawText("Difficulty: " + this.difficulty.toString(), LOCATION_DIFFICULTY_X, LOCATION_DIFFICULTY_Y, paint);
-        canvas.drawText("Size: " + this.size.getDescription(), LOCATION_SIZE_X, LOCATION_SIZE_Y, paint);
+        //draw timer accordingly
+        if (mode == Mode.Timed)
+        {
+	        canvas.drawText(
+	        	"Time: " + TimeFormat.getDescription(TimeFormat.FORMAT_1, countdownTime - totalTime), 
+		        LOCATION_TIMER_X, 
+		        LOCATION_TIMER_Y, 
+		        paint
+	        );
+        }
+        else
+        {
+	        canvas.drawText(
+	        	"Time: " + TimeFormat.getDescription(TimeFormat.FORMAT_1, totalTime), 
+	        	LOCATION_TIMER_X, 
+	        	LOCATION_TIMER_Y, 
+	        	paint
+	        );
+        }
         
-        //calculate time
-        int secs = (int) (totalTime / 1000);
-        final int mins = secs / 60;
-        secs = secs % 60;
-        final int milliseconds = (int) (totalTime % 1000);
+        //draw difficulty
+        canvas.drawText(
+        	"Difficulty: " + this.difficulty.toString(), 
+        	LOCATION_DIFFICULTY_X, 
+        	LOCATION_DIFFICULTY_Y, 
+        	paint
+        );
         
-        //time description
-        final String desc = mins + ":" + String.format("%02d", secs) + ":" + String.format("%03d", milliseconds);
-        
-        //draw timer
-        canvas.drawText("Time: " + desc, LOCATION_TIMER_X, LOCATION_TIMER_Y, paint);
+        //draw level #
+        canvas.drawText(
+        	"Level: " + (this.getLevelSelect().getLevelIndex() + 1), 
+        	LOCATION_LEVEL_X, 
+        	LOCATION_LEVEL_Y, 
+        	paint);
     }
 }

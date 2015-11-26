@@ -34,6 +34,9 @@ public class MenuScreen implements Screen, Disposable
     //object used to define font metrics
     private Paint paint;
     
+    //do we create a game
+    private boolean create = false;
+    
     /**
      * Button text to display to exit the game
      */
@@ -131,7 +134,8 @@ public class MenuScreen implements Screen, Disposable
     @Override
     public void reset()
     {
-        //do we need anything here
+        //flag create false
+    	create = false;
     }
     
     @Override
@@ -141,14 +145,8 @@ public class MenuScreen implements Screen, Disposable
         {
             if (buttons.get(Key.Start).contains(x, y))
             {
-                //play sound effect
-                Audio.play(Assets.AudioKey.MenuSeletion);
-                
-                //set running state
-                screen.setState(MainScreen.State.Running);
-
-                //create the game
-                screen.getScreenGame().createGame();
+            	//flag create
+            	create = true;
             }
             else if (buttons.get(Key.Settings).contains(x, y))
             {
@@ -199,7 +197,24 @@ public class MenuScreen implements Screen, Disposable
     @Override
     public void update() throws Exception
     {
-        //no updates needed here
+        //if create is flagged
+    	if (create)
+    	{
+    		//flag false
+    		create = false;
+    		
+            //play sound effect
+            Audio.play(Assets.AudioKey.MenuSeletion);
+
+            //create the game
+            screen.getScreenGame().createGame();
+            
+            //set running state
+            screen.setState(MainScreen.State.Running);
+            
+            //play random song
+            Assets.playSong();
+    	}
     }
     
     @Override

@@ -1,10 +1,15 @@
 package com.gamesbykevin.squares.board;
 
 import com.gamesbykevin.androidframework.base.Entity;
+import com.gamesbykevin.androidframework.resources.Files;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 
+import com.gamesbykevin.squares.assets.Assets;
 import com.gamesbykevin.squares.block.BlockKey;
+import com.gamesbykevin.squares.board.Peg.Fill;
+import com.gamesbykevin.squares.game.Game;
 import com.gamesbykevin.squares.panel.GamePanel;
 
 /**
@@ -14,44 +19,22 @@ import com.gamesbykevin.squares.panel.GamePanel;
 public final class Board extends Entity implements IBoard
 {
     /**
-     * The size of a default board
+     * The default range for game play
      */
-    public static final int DEFAULT_DIMENSIONS = 3;
+    public static final int DIFFICULTY_RANGE_DEFAULT = 2;
     
     /**
-     * The peg size of a small board
+     * The range for evil game play
      */
-    public static final int SIZE_SMALL = 3;
+    public static final int DIFFICULTY_RANGE_EVIL = 3;
     
     /**
-     * The peg size of a medium board
+     * The largest size of a board
      */
-    public static final int SIZE_MEDIUM = 4;
+    public static final int DEFAULT_SIZE = 5;
     
-    /**
-     * The peg size of a large board
-     */
-    public static final int SIZE_LARGE = 5;
-    
-    /**
-     * The peg size of a very large board
-     */
-    public static final int SIZE_VERY_LARGE = 6;
-    
-    /**
-     * The range for easy game play
-     */
-    public static final int DIFFICULTY_RANGE_EASY = 2;
-    
-    /**
-     * The range for medium game play
-     */
-    public static final int DIFFICULTY_RANGE_MEDIUM = 3;
-    
-    /**
-     * The range for hard game play
-     */
-    public static final int DIFFICULTY_RANGE_HARD = 5;
+    //is the specified peg flagged
+    private boolean[][] flagged;
     
     //the key to the board
     private int[][] solution;
@@ -65,10 +48,13 @@ public final class Board extends Entity implements IBoard
     //a peg is one of the corners of a single block
     private Peg peg;
     
+    //toggle between fill and flag
+    private boolean fill = true;
+    
     /**
      * The amount of pixels on each side
      */
-    private static final int PIXEL_PADDING = 15;
+    private static final int PIXEL_PADDING = 10;
     
     //store the dimensions
     private int cols, rows;
@@ -80,7 +66,7 @@ public final class Board extends Entity implements IBoard
      * @param range
      * @throws Exception 
      */
-    public Board(final int cols, final int rows, final int range) throws Exception
+    public Board() throws Exception
     {
         //create a new block key
         this.blockKey = new BlockKey();
@@ -88,8 +74,12 @@ public final class Board extends Entity implements IBoard
         //create a new peg
         this.peg = new Peg();
         
-        //set default board
-        reset(cols, rows, range);
+        //create the new key for the player and the solution
+        this.solution = new int[Board.DEFAULT_SIZE + 1][Board.DEFAULT_SIZE + 1];
+        this.player = new int[solution.length][solution[0].length];
+        
+        //create a new flagged list
+        this.flagged = new boolean[solution.length][solution[0].length];
     }
     
     /**
@@ -109,7 +99,6 @@ public final class Board extends Entity implements IBoard
     {
         return this.rows;
     }
-            
     
     @Override
     public void dispose()
@@ -130,48 +119,85 @@ public final class Board extends Entity implements IBoard
         
         this.solution = null;
         this.player = null;
+        this.flagged = null;
     }
     
     /**
      * Reset the board
-     * @param cols Total columns on the board
-     * @param rows Total rows on the board
-     * @param range The difficulty range
+     * @param key They key of the text file asset containing the levels
+     * @param levelIndex The desired level
      * @throws Exception
      */
-    public final void reset(final int cols, final int rows, final int range) throws Exception
+    public final void reset(final Assets.TextKey key, final int levelIndex) throws Exception
     {
-        this.cols = cols;
-        this.rows = rows;
-        
-        if (getSolution() == null)
-            this.solution = new int[Board.SIZE_VERY_LARGE + Board.SIZE_MEDIUM + 1][Board.SIZE_VERY_LARGE + Board.SIZE_SMALL + 1];
-        if (getPlayer() == null)
-            this.player = new int[Board.SIZE_VERY_LARGE + Board.SIZE_MEDIUM + 1][Board.SIZE_VERY_LARGE + Board.SIZE_SMALL + 1];
-
-        //reset to 0
+    	//default to filling the pegs
+    	this.fill = true;
+    	
+        //reset all to 0
         for (int row = 0; row < getSolution().length; row++)
         {
             for (int col  = 0; col < getSolution()[0].length; col++)
             {
                 getPlayer()[row][col] = 0;
                 getSolution()[row][col] = 0;
+                getFlagged()[row][col] = false;
             }
         }
         
-        //pick random values
+    	//get the line representing the solution in our text file
+    	final String line = Files.getText(key).getLines().get(levelIndex);
+        
+    	//determine the size of the board
+    	if (line.length() == 16)
+    	{
+    		this.cols = 4;
+    		this.rows = 4;
+    	}
+    	else
+    	{
+    		this.cols = 6;
+    		this.rows = 6;
+    	}
+    	
+    	//the range of the peg we can select
+    	int range = 0;
+    	
         for (int row = 0; row < getRows(); row++)
         {
             for (int col  = 0; col < getCols(); col++)
             {
-                //assign random value
-                getSolution()[row][col] = GamePanel.RANDOM.nextInt(range);
+            	//calculate the character position
+            	final int index = (row * getCols()) + col;
+            	
+            	//get the key
+            	final int tmp = Integer.parseInt(line.substring(index, index + 1));
+            	
+            	//assign the key to the solution
+            	getSolution()[row][col] = tmp;
+            	
+            	//check if we have a new range
+            	if (tmp >= range)
+            		range = tmp + 1;
             }
         }
         
-        //assign cell dimensions
-        super.setWidth((GamePanel.WIDTH - PIXEL_PADDING - PIXEL_PADDING) / getCols());
-        super.setHeight(super.getWidth());
+        //set dimension accordingly
+        if (getCols() == 6)
+        {
+            //assign cell dimensions
+            super.setWidth((GamePanel.WIDTH / (getCols() - 1)) - PIXEL_PADDING);
+            super.setHeight(super.getWidth());
+        }
+        else
+        {
+            //assign cell dimensions
+            super.setWidth((GamePanel.WIDTH / getCols()) - PIXEL_PADDING);
+            super.setHeight(super.getWidth());
+        }
+        
+        //assign the single block dimension
+        blockKey.setWidth(getWidth());
+        blockKey.setHeight(getHeight());
         
         //assign the range
         this.peg.setRange(range);
@@ -207,42 +233,90 @@ public final class Board extends Entity implements IBoard
     }
     
     /**
+     * Get the flagged key
+     * @return The key containing which locations are flagged
+     */
+    protected boolean[][] getFlagged()
+    {
+    	return this.flagged;
+    }
+    
+    private int getFillX()
+    {
+    	return Game.LOCATION_TIMER_X;
+    }
+    
+    private int getFillY()
+    {
+    	return (int)(Game.LOCATION_TIMER_Y - peg.getHeight() - (peg.getHeight() / 2));
+    }
+    
+    /**
      * Update the pegs on the board
      * @param x x-coordinate
      * @param y y-coordinate
      */
     public void update(final float x, final float y)
     {
+    	
         //render the pegs
         for (int row = 0; row < getRows(); row++)
         {
             for (int col  = 0; col < getCols(); col++)
             {
-                //calculate coordinates
-                peg.setX(BoardHelper.getStartX(this, col) - (peg.getWidth() / 2));
-                peg.setY(BoardHelper.getStartY(this, row) - (peg.getHeight() / 2));
-                
+            	//calculate coordinates
+            	peg.setX(BoardHelper.getStartX(this, col));
+            	peg.setY(BoardHelper.getStartY(this, row));
+            	
                 //if the coordinate is inside the object
-                if (peg.getDestination().contains((int)x, (int)y))
+                if (peg.contains(x, y))
                 {
-                    //increase the count
-                    getPlayer()[row][col]++;
-                    
-                    //if out of range, reset
-                    if (getPlayer()[row][col] >= peg.getRange())
-                        getPlayer()[row][col] = 0;
+                	//if we want to fill
+                	if (fill)
+                	{
+                    	//if this location is flagged, we can't continue
+                    	if (getFlagged()[row][col])
+                    		continue;
+                		
+                        //increase the count
+                        getPlayer()[row][col]++;
+                        
+                        //if out of range, reset
+                        if (getPlayer()[row][col] >= peg.getRange())
+                            getPlayer()[row][col] = 0;
+                	}
+                	else
+                	{
+                		//if flagged undo and vice versa
+            			getFlagged()[row][col] = !getFlagged()[row][col];
+            			
+            			//reset back to 0
+            			getPlayer()[row][col] = 0;
+                	}
+                	
+                	//no need to continue
+                	return;
                 }
             }
         }
+        
+        //check the fill peg
+        peg.setX(getFillX());
+        peg.setY(getFillY());
+        
+        //if the coordinate is inside the object flip the setting
+        if (peg.getDestination().contains((int)x, (int)y))
+        	this.fill = !this.fill;
     }
     
     /**
      * Render the board
      * @param canvas Object to write pixels to
+     * @param paint Object to write text
      * @throws Exception
      */
     @Override
-    public void render(final Canvas canvas) throws Exception
+    public void render(final Canvas canvas, final Paint paint) throws Exception
     {
         //render the block keys
         for (int row = 0; row < getRows() - 1; row++)
@@ -258,15 +332,9 @@ public final class Board extends Entity implements IBoard
                 //assign the proper animation
                 blockKey.setAnimation(countSolution, countPlayer);
                 
-                //calculate coordinates
-                final int x = BoardHelper.getStartX(this, col);
-                final int y = BoardHelper.getStartY(this, row);
-                
                 //assign coordinates and render the image
-                blockKey.setX(x);
-                blockKey.setY(y);
-                blockKey.setWidth(getWidth());
-                blockKey.setHeight(getHeight());
+                blockKey.setX(BoardHelper.getStartX(this, col));
+                blockKey.setY(BoardHelper.getStartY(this, row));
                 blockKey.render(canvas);
             }
         }
@@ -281,11 +349,24 @@ public final class Board extends Entity implements IBoard
                 peg.setY(BoardHelper.getStartY(this, row) - (peg.getHeight() / 2));
                 
                 //assign the animation
-                peg.setAnimation(getPlayer()[row][col]);
+                peg.setAnimation(getPlayer()[row][col], getFlagged()[row][col]);
                 
                 //render the image
                 peg.render(canvas);
             }
         }
+        
+        //render the peg flag option
+        peg.setX(getFillX());
+        peg.setY(getFillY());
+    	peg.getSpritesheet().setKey((!fill) ? Fill.Flagged : Fill.Full);
+    	peg.render(canvas);
+    	
+    	canvas.drawText(
+    		(fill) ? " - Solve Game" : " - Flag Peg", 
+    		(int)(getFillX() + peg.getWidth()), 
+    		(int)((getFillY() + peg.getHeight()) - (peg.getHeight() * .33)), 
+    		paint
+    	);
     }
 }

@@ -57,7 +57,7 @@ public class Controller implements IController
         }
         
         int x = 100;
-        final int y = 675;
+        final int y = 700;
         final int incrementX = 100;
         
         this.buttons.get(Assets.ImageKey.SoundDisabled).setX(x);
@@ -107,7 +107,7 @@ public class Controller implements IController
      * @param y (y-coordinate)
      * @return true if motion event was applied, false otherwise
      */
-    public boolean updateMotionEvent(final MotionEvent event, final float x, final float y)
+    public boolean update(final MotionEvent event, final float x, final float y)
     {
         //check if the touch screen was released
         if (event.getAction() == MotionEvent.ACTION_UP)
@@ -153,6 +153,17 @@ public class Controller implements IController
         
         //no event was applied
         return false;
+    }
+    
+    @Override
+    public void reset()
+    {
+    	if (buttons != null)
+    	{
+	        //determine which button is displayed
+	        buttons.get(Assets.ImageKey.SoundEnabled).setVisible(Audio.isAudioEnabled());
+	        buttons.get(Assets.ImageKey.SoundDisabled).setVisible(!Audio.isAudioEnabled());
+    	}
     }
     
     /**

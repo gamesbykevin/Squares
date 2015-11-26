@@ -7,19 +7,30 @@ package com.gamesbykevin.squares.board;
 public class BoardHelper 
 {
     /**
-     * Do we have a match
-     * @param board The board we are checking
+     * Do we have a match?
+     * @param board The board containing the player and solution we want to check
      * @return true if all the values match, false otherwise
      */
     public static final boolean hasMatch(final Board board)
     {
+    	return hasMatch(board.getSolution(), board.getPlayer());
+    }
+    
+    /**
+     * Do we have a match?
+     * @param solution The solution key to the board
+     * @param player The player key with their findings
+     * @return true if the supplied player key matches the solution key
+     */
+    public static final boolean hasMatch(final int[][] solution, final int[][] player)
+    {
         //make sure each location matches
-        for (int row = 0; row < board.getRows() - 1; row++)
+        for (int row = 0; row < solution.length - 1; row++)
         {
-            for (int col = 0; col < board.getCols() - 1; col++)
+            for (int col = 0; col < solution[0].length - 1; col++)
             {
                 //if the count is not equal, there is no match
-                if (getCount(board.getPlayer(), col, row) != getCount(board.getSolution(), col, row))
+                if (getCount(player, col, row) != getCount(solution, col, row))
                     return false;
             }
         }
@@ -34,7 +45,7 @@ public class BoardHelper
      * @param col The col where the coordinate is
      * @return The x-coordinate on the board
      */
-    protected static final int getStartX(final Board board, final int col)
+    protected static final int getStartX(final Board board, final double col)
     {
         return (int)(board.getX() + (col * board.getWidth()));
     }
@@ -45,7 +56,7 @@ public class BoardHelper
      * @param row The row where the coordinate is
      * @return The y-coordinate on the board
      */
-    protected static final int getStartY(final Board board, final int row)
+    protected static final int getStartY(final Board board, final double row)
     {
         return (int)(board.getY() + (row * board.getHeight()));
     }

@@ -34,7 +34,7 @@ public class GameoverScreen implements Screen, Disposable
     private int pixelW;
     
     //buttons
-    private Button restart, mainmenu, rateapp, exitgame;
+    private Button next, mainmenu, rateapp;
     
     //time we have displayed text
     private long time;
@@ -42,20 +42,10 @@ public class GameoverScreen implements Screen, Disposable
     /**
      * The amount of time to wait until we render the game over menu
      */
-    private static final long DELAY_MENU_DISPLAY = 2250;
+    private static final long DELAY_MENU_DISPLAY = 1250;
     
     //do we display the menu
     private boolean display = false;
-    
-    /**
-     * The alpha visibility when the menu is not shown
-     */
-    private static final int ALPHA_DARK = 175;
-    
-    /**
-     * The alpha visibility when the menu is not shown
-     */
-    private static final int ALPHA_DARK_OTHER = 125;
     
     
     public GameoverScreen(final MainScreen screen)
@@ -78,12 +68,12 @@ public class GameoverScreen implements Screen, Disposable
 
         //create our buttons
         y += addY;
-        this.restart = new Button(Images.getImage(Assets.ImageKey.Button));
-        this.restart.setX(x);
-        this.restart.setY(y);
-        this.restart.updateBounds();
-        this.restart.addDescription("New Game");
-        this.restart.positionText(paintButton);
+        this.next = new Button(Images.getImage(Assets.ImageKey.Button));
+        this.next.setX(x);
+        this.next.setY(y);
+        this.next.updateBounds();
+        this.next.addDescription("Next");
+        this.next.positionText(paintButton);
         
         y += addY;
         this.mainmenu = new Button(Images.getImage(Assets.ImageKey.Button));
@@ -100,14 +90,6 @@ public class GameoverScreen implements Screen, Disposable
         this.rateapp.updateBounds();
         this.rateapp.addDescription(MenuScreen.BUTTON_TEXT_RATE_APP);
         this.rateapp.positionText(paintButton);
-        
-        y += addY;
-        this.exitgame = new Button(Images.getImage(Assets.ImageKey.Button));
-        this.exitgame.setX(x);
-        this.exitgame.setY(y);
-        this.exitgame.updateBounds();
-        this.exitgame.addDescription(MenuScreen.BUTTON_TEXT_EXIT_GAME);
-        this.exitgame.positionText(paintButton);
     }
     
     /**
@@ -160,16 +142,21 @@ public class GameoverScreen implements Screen, Disposable
         
         if (event.getAction() == MotionEvent.ACTION_UP)
         {
-            if (restart.contains(x, y))
+            if (next.contains(x, y))
             {
                 //stop sound
                 Audio.stop();
                 
+                //move back to the game
+                screen.setState(MainScreen.State.Running);
+                
                 //play sound effect
                 Audio.play(Assets.AudioKey.MenuSeletion);
                 
-                //move back to the game
-                screen.setState(MainScreen.State.Running);
+                //move to the next level
+                screen.getScreenGame().getGame().getLevelSelect().setLevelIndex(
+                	screen.getScreenGame().getGame().getLevelSelect().getLevelIndex() + 1
+                );
                 
                 //restart game with the same settings
                 screen.getScreenGame().getGame().reset();
@@ -196,17 +183,6 @@ public class GameoverScreen implements Screen, Disposable
                 //go to rate game page
                 screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_RATE_URL);
             }
-            else if (exitgame.contains(x, y))
-            {
-                //stop sound
-                Audio.stop();
-                
-                //play sound effect
-                Audio.play(Assets.AudioKey.MenuSeletion);
-                
-                //exit game
-                screen.getPanel().getActivity().finish();
-            }
         }
         
         //no action was taken here
@@ -221,43 +197,36 @@ public class GameoverScreen implements Screen, Disposable
         {
             //if time has passed display menu
             if (System.currentTimeMillis() - time >= DELAY_MENU_DISPLAY)
+            {
+            	//flag true
                 display = true;
+            }
         }
-        
-        //nothing needed to update here
     }
     
     @Override
     public void render(final Canvas canvas) throws Exception
     {
-        //darken background accordingly
-        if (display)
-        {
-            MainScreen.darkenBackground(canvas, ALPHA_DARK_OTHER);
-        }
-        else
-        {
-            MainScreen.darkenBackground(canvas, ALPHA_DARK);
-        }
-        
-        if (paint != null)
-        {
-            //calculate middle
-            final int x = (GamePanel.WIDTH / 2) - (pixelW / 2);
-            final int y = (int)(GamePanel.HEIGHT * .15);
-             
-            //draw text
-            canvas.drawText(this.message, x, y, paint);
-        }
-        
         //do we display the menu
         if (display)
         {
+        	//darken background
+        	MainScreen.darkenBackground(canvas, MainScreen.ALPHA_DARK);
+        	
             //render buttons
-            restart.render(canvas, paintButton);
+            next.render(canvas, paintButton);
             rateapp.render(canvas, paintButton);
             mainmenu.render(canvas, paintButton);
-            exitgame.render(canvas, paintButton);
+            
+            if (paint != null)
+            {
+                //calculate middle
+                final int x = (GamePanel.WIDTH / 2) - (pixelW / 2);
+                final int y = (int)(GamePanel.HEIGHT * .15);
+                 
+                //draw text
+                canvas.drawText(this.message, x, y, paint);
+            }
         }
     }
     
@@ -270,22 +239,16 @@ public class GameoverScreen implements Screen, Disposable
         if (paintButton != null)
             paintButton = null;
         
-        if (restart != null)
+        if (next != null)
         {
-            restart.dispose();
-            restart = null;
+            next.dispose();
+            next = null;
         }
         
         if (mainmenu != null)
         {
             mainmenu.dispose();
             mainmenu = null;
-        }
-        
-        if (exitgame != null)
-        {
-            exitgame.dispose();
-            exitgame = null;
         }
         
         if (rateapp != null)

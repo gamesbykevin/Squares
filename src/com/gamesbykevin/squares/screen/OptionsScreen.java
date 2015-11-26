@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.SparseArray;
 import android.view.MotionEvent;
 
 import com.gamesbykevin.androidframework.awt.Button;
@@ -13,9 +14,7 @@ import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.androidframework.screen.Screen;
 import com.gamesbykevin.squares.assets.Assets;
 import com.gamesbykevin.squares.game.Game;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.gamesbykevin.squares.storage.settings.Settings;
 
 /**
  * This screen will contain the game options
@@ -26,25 +25,17 @@ public class OptionsScreen implements Screen, Disposable
     //our logo reference
     private final Bitmap logo;
     
-    //list of difficulty buttons
-    private List<Button> difficulties;
+    //list of buttons on the options screen
+    private SparseArray<Button> buttons;
     
-    //list of different sizes
-    private List<Button> sizes;
+    //our storage settings object
+    private Settings settings;
     
-    //list of mode buttons
-    private List<Button> modes;
-    
-    //list of buttons for the sound
-    private List<Button> sounds;
-    
-    //store the index
-    private int indexDifficulty = 0;
-    private int indexMode = 0;
-    private int indexSize = 0;
-    
-    //the go back button
-    private Button back;
+    //buttons to access each button list
+    public static final int INDEX_BUTTON_BACK = 0;
+    public static final int INDEX_BUTTON_SOUND = 1;
+    public static final int INDEX_BUTTON_DIFFICULTY = 2;
+    public static final int INDEX_BUTTON_MODE = 3;
     
     //our main screen reference
     private final MainScreen screen;
@@ -56,6 +47,9 @@ public class OptionsScreen implements Screen, Disposable
     {
         //our logo reference
         this.logo = Images.getImage(Assets.ImageKey.Logo);
+
+        //create buttons hash map
+        this.buttons = new SparseArray<Button>();
         
         //store our screen reference
         this.screen = screen;
@@ -74,116 +68,110 @@ public class OptionsScreen implements Screen, Disposable
         int y = 175;
         final int incrementY = 100;
         
-        //add size option
-        this.sizes = new ArrayList<Button>();
+        addButtonSound(x, y);
         
-        //add audio option
-        this.sounds = new ArrayList<Button>();
+        y += incrementY;
+        addButtonMode(x, y);
         
+        y += incrementY;
+        addButtonDifficulty(x, y);
+        
+        y += incrementY;
+        addButtonBack(x, y);
+        
+        //create our settings object last, which will load the previous settings
+        this.settings = new Settings(this, screen.getPanel().getActivity());
+    }
+    
+    /**
+     * Get the list of buttons.<br>
+     * We typically use this list to help load/set the settings based on the index of each button.
+     * @return The list of buttons on the options screen
+     */
+    public SparseArray<Button> getButtons()
+    {
+    	return this.buttons;
+    }
+    
+    private void addButtonBack(final int x, final int y)
+    {
         Button button = new Button(Images.getImage(Assets.ImageKey.Button));
+        button.addDescription("Back");
+        button.setX(x);
+        button.setY(y);
+        button.updateBounds();
+        button.positionText(paint);
+        
+        this.buttons.put(INDEX_BUTTON_BACK, button);
+    }
+    
+    private void addButtonDifficulty(final int x, final int y)
+    {
+        Button button = new Button(Images.getImage(Assets.ImageKey.Button));
+        
+        for (Game.Difficulty diff : Game.Difficulty.values())
+        {
+            //set the description
+            button.addDescription("Difficutly: " + diff.getDescription());
+        }
+        
+        button.setX(x);
+        button.setY(y);
+        button.updateBounds();
+        button.positionText(paint);
+        
+        this.buttons.put(INDEX_BUTTON_DIFFICULTY, button);
+    }
+    
+    private void addButtonMode(final int x, final int y)
+    {
+        Button button = new Button(Images.getImage(Assets.ImageKey.Button));
+        
+        for (Game.Mode mode : Game.Mode.values())
+        {
+            //set the description
+            button.addDescription("Mode: " + mode.getDescription());
+        }
+        
+        button.setX(x);
+        button.setY(y);
+        button.updateBounds();
+        button.positionText(paint);
+        
+        this.buttons.put(INDEX_BUTTON_MODE, button);
+    }
+    
+    private void addButtonSound(final int x, final int y)
+    {
+        Button button = new Button(Images.getImage(Assets.ImageKey.Button));
+        button.addDescription("Sound: Enabled");
         button.addDescription("Sound: Disabled");
         button.setX(x);
         button.setY(y);
         button.updateBounds();
         button.positionText(paint);
         
-        this.sounds.add(button);
-        
-        button = new Button(Images.getImage(Assets.ImageKey.Button));
-        button.addDescription("Sound: Enabled");
-        button.setX(x);
-        button.setY(y);
-        button.updateBounds();
-        button.positionText(paint);
-        
-        this.sounds.add(button);
-        
-        //add buttons
-        this.modes = new ArrayList<Button>();
-        
-        y += incrementY;
-        for (Game.Mode mode : Game.Mode.values())
-        {
-            //create button
-            button = new Button(Images.getImage(Assets.ImageKey.Button));
-            
-            //set the description
-            button.addDescription("Mode: " + mode.getDescription());
-            
-            //assign location
-            button.setX(x);
-            button.setY(y);
-            
-            //set boundary
-            button.updateBounds();
-            
-            //position text
-            button.positionText(paint);
-            
-            //add to list
-            modes.add(button);
-        }
-        
-        //add buttons
-        this.difficulties = new ArrayList<Button>();
-        
-        y += incrementY;
-        for (Game.Difficulty diff : Game.Difficulty.values())
-        {
-            //create button
-            button = new Button(Images.getImage(Assets.ImageKey.Button));
-            
-            //set the description
-            button.addDescription("Difficutly: " + diff.getDescription());
-            
-            //assign location
-            button.setX(x);
-            button.setY(y);
-            
-            //set boundary
-            button.updateBounds();
-            
-            //position text
-            button.positionText(paint);
-            
-            //add to list
-            difficulties.add(button);
-        }
-        
-        //add size option
-        this.sizes = new ArrayList<Button>();
-        
-        y += incrementY;
-        for (Game.Size size : Game.Size.values())
-        {
-            //create button
-            button = new Button(Images.getImage(Assets.ImageKey.Button));
-            
-            //set the description
-            button.addDescription("Size: " + size.getDescription());
-            
-            //assign location
-            button.setX(x);
-            button.setY(y);
-            
-            //set boundary
-            button.updateBounds();
-            
-            //position text
-            button.positionText(paint);
-            
-            //add to list
-            sizes.add(button);
-        }
-        
-        y += incrementY;
-        //the back button
-        this.back = new Button(Images.getImage(Assets.ImageKey.Button));
-        this.back.addDescription("Go Back");
-        this.back.setX(x);
-        this.back.setY(y);
-        this.back.updateBounds();
-        this.back.positionText(paint);
+        this.buttons.put(INDEX_BUTTON_SOUND, button);
+    }
+    
+    /**
+     * Assign the index.
+     * @param key The key of the button we want to change
+     * @param index The desired index
+     */
+    public void setIndex(final int key, final int index)
+    {
+    	buttons.get(key).setIndex(index);
+    }
+    
+    /**
+     * Get the index selection of the specified button
+     * @param key The key of the button we want to check
+     * @return The current selection for the specified button key
+     */
+    public int getIndex(final int key)
+    {
+    	return buttons.get(key).getIndex();
     }
     
     /**
@@ -192,96 +180,99 @@ public class OptionsScreen implements Screen, Disposable
     @Override
     public void reset()
     {
-        //do we need anything here
+        if (buttons != null)
+        {
+        	for (int key = 0; key < buttons.size(); key++)
+        	{
+        		//get the current button
+        		Button button = buttons.get(key);
+        		
+        		//make sure the buttons are positioned correctly
+        		if (button != null)
+			        button.positionText(paint);
+        	}
+        }
     }
     
     @Override
     public boolean update(final MotionEvent event, final float x, final float y) throws Exception
     {
-        if (event.getAction() == MotionEvent.ACTION_UP)
+    	//we only want motion event up
+    	if (event.getAction() != MotionEvent.ACTION_UP)
+    		return true;
+    	
+        if (buttons != null)
         {
-            if (back.contains(x, y))
-            {
-                //play sound effect
-                Audio.play(Assets.AudioKey.MenuSeletion);
-                
-                //set ready state
-                screen.setState(MainScreen.State.Ready);
-                
-                //no need to continue
-                return false;
-            }
-            
-            for (Button button : sounds)
-            {
-                if (button.contains(x, y))
-                {
-                    //flip setting
-                    Audio.setAudioEnabled(!Audio.isAudioEnabled());
+        	for (int key = 0; key < buttons.size(); key++)
+        	{
+        		//get the current button
+        		Button button = buttons.get(key);
+        		
+        		//if the button does not exist skip to the next
+        		if (button == null)
+        			continue;
+        		
+    			//if we did not select this button, skip to the next
+    			if (!button.contains(x, y))
+    				continue;
+    			
+				//change index
+				button.setIndex(button.getIndex() + 1);
+				
+				//position the text
+		        button.positionText(paint);
+				
+				//determine which button
+				switch (key)
+				{
+    				case INDEX_BUTTON_BACK:
+    					
+    	                //store our settings
+    	                settings.save();
+    	                
+    	                //set ready state
+    	                screen.setState(MainScreen.State.Ready);
+    	                
+    	                //play sound effect
+    	                Audio.play(Assets.AudioKey.MenuSeletion);
+    	                
+    	                //no need to continue
+    	                return false;
+    	                
+    				case INDEX_BUTTON_SOUND:
+    					
+                        //flip setting
+                        Audio.setAudioEnabled(!Audio.isAudioEnabled());
+                        
+                        //we also want to update the audio button in the controller so the correct is displayed
+                        if (screen.getScreenGame() != null && screen.getScreenGame().getGame() != null)
+                        {
+                        	//make sure the controller exists
+                    		if (screen.getScreenGame().getGame().getController() != null)
+                    			screen.getScreenGame().getGame().getController().reset();
+                        }
+                        
+                        //play sound effect
+                        Audio.play(Assets.AudioKey.MenuSeletion);
+                        
+                        //exit loop
+                        return false;
                     
-                    //play sound effect
-                    Audio.play(Assets.AudioKey.MenuSeletion);
-                    
-                    //exit loop
-                    return false;
-                }
-            }
-            
-            for (Button button : modes)
-            {
-                if (button.contains(x, y))
-                {
-                    //play sound effect
-                    Audio.play(Assets.AudioKey.MenuSeletion);
-                    
-                    //increase index
-                    this.indexMode++;
-                    
-                    if (this.indexMode >= modes.size())
-                        this.indexMode = 0;
-                    
-                    //no need to continue
-                    return false;
-                }
-            }
-            
-            for (Button button : sizes)
-            {
-                if (button.contains(x, y))
-                {
-                    //play sound effect
-                    Audio.play(Assets.AudioKey.MenuSeletion);
-                    
-                    //increase index
-                    this.indexSize++;
-                    
-                    if (this.indexSize >= sizes.size())
-                        this.indexSize = 0;
-                    
-                    //no need to continue
-                    return false;
-                }
-            }
-            
-            for (Button button : difficulties)
-            {
-                if (button.contains(x, y))
-                {
-                    //play sound effect
-                    Audio.play(Assets.AudioKey.MenuSeletion);
-                    
-                    //increase index
-                    this.indexDifficulty++;
-                    
-                    if (this.indexDifficulty >= difficulties.size())
-                        this.indexDifficulty = 0;
-                    
-                    //no need to continue
-                    return false;
-                }
-            }
+    				case INDEX_BUTTON_DIFFICULTY:
+    				case INDEX_BUTTON_MODE:
+                    	
+                        //play sound effect
+    					Audio.play(Assets.AudioKey.MenuSeletion);
+                        
+                        //exit loop
+                        return false;
+                        
+                    default:
+                    	throw new Exception("Key not setup here: " + key);
+				}
+        	}
         }
-        
+    	
         //return true
         return true;
     }
@@ -292,117 +283,45 @@ public class OptionsScreen implements Screen, Disposable
         //no updates needed here
     }
     
-    /**
-     * Get the mode index
-     * @return The user selected mode
-     */
-    public int getIndexMode()
-    {
-        return this.indexMode;
-    }
-    
-    /**
-     * Get the difficulty index
-     * @return The user selected difficulty
-     */
-    public int getIndexDifficulty()
-    {
-        return this.indexDifficulty;
-    }
-    
-    /**
-     * Get the size index
-     * @return The desired user size of the board
-     */
-    public int getIndexSize()
-    {
-        return this.indexSize;
-    }
-    
     @Override
     public void render(final Canvas canvas) throws Exception
     {
-        //draw main logo
+        //draw our main logo
         canvas.drawBitmap(logo, MainScreen.LOGO_X, MainScreen.LOGO_Y, null);
         
         //draw the menu buttons
-        difficulties.get(this.indexDifficulty).render(canvas, paint);
-        modes.get(this.indexMode).render(canvas, paint);
-        sizes.get(this.indexSize).render(canvas, paint);
-        sounds.get(Audio.isAudioEnabled() ? 1 : 0).render(canvas, paint);
-        back.render(canvas, paint);
+    	for (int i = 0; i < buttons.size(); i++)
+    	{
+    		if (buttons.get(i) != null)
+    			buttons.get(i).render(canvas, paint);
+    	}
     }
     
     @Override
     public void dispose()
     {
-        if (back != null)
-        {
-            back.dispose();
-            back = null;
-        }
-        
-        if (difficulties != null)
-        {
-            for (Button button : difficulties)
-            {
-                if (button != null)
-                {
-                    button.dispose();
-                    button = null;
-                }
-            }
-            
-            difficulties.clear();
-            difficulties = null;
-        }
-        
-        if (modes != null)
-        {
-            for (Button button : modes)
-            {
-                if (button != null)
-                {
-                    button.dispose();
-                    button = null;
-                }
-            }
-            
-            modes.clear();
-            modes = null;
-        }
-        
-        if (sounds != null)
-        {
-            for (Button button : sounds)
-            {
-                if (button != null)
-                {
-                    button.dispose();
-                    button = null;
-                }
-            }
-            
-            sounds.clear();
-            sounds = null;
-        }
-        
-        if (sizes != null)
-        {
-            for (Button button : sizes)
-            {
-                if (button != null)
-                {
-                    button.dispose();
-                    button = null;
-                }
-            }
-            
-            sizes.clear();
-            sizes = null;
-        }
-        
         if (paint != null)
-            paint = null;
+        	paint = null;
+    	
+        if (settings != null)
+        {
+            settings.dispose();
+            settings = null;
+        }
+        
+        if (buttons != null)
+        {
+        	for (int i = 0; i < buttons.size(); i++)
+        	{
+        		if (buttons.get(i) != null)
+        		{
+        			buttons.get(i).dispose();
+        			buttons.put(i, null);
+        		}
+        	}
+        	
+        	buttons.clear();
+        	buttons = null;
+        }
     }
 }

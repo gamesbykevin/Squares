@@ -11,6 +11,8 @@ import com.gamesbykevin.androidframework.resources.Disposable;
  */
 public interface IController extends Disposable
 {
+	public void reset();
+	
     /**
      * Update logic when motion event occurs
      * @param event Motion Event
@@ -18,7 +20,7 @@ public interface IController extends Disposable
      * @param y y-coordinate
      * @return true if motion event was applied, false otherwise
      */
-    public boolean updateMotionEvent(final MotionEvent event, final float x, final float y);
+    public boolean update(final MotionEvent event, final float x, final float y);
     
     /**
      * Render our controller

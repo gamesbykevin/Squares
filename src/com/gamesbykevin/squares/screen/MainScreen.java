@@ -55,7 +55,7 @@ public final class MainScreen implements Screen, Disposable
     /**
      * The alpha visibility to apply when darkening the background
      */
-    private static final int ALPHA_DARK = 175;
+    public static final int ALPHA_DARK = 175;
     
     /**
      * Create our main screen
@@ -107,7 +107,7 @@ public final class MainScreen implements Screen, Disposable
         getScreen(getState()).update();
     }
     
-    protected GamePanel getPanel()
+    public GamePanel getPanel()
     {
         return this.panel;
     }

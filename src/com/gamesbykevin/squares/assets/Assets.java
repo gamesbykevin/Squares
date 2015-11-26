@@ -27,6 +27,11 @@ public class Assets
     private static final String DIRECTORY_FONT = "font";
     
     /**
+     * The directory where our text files are kept
+     */
+    private static final String DIRECTORY_TEXT = "text";
+    
+    /**
      * The different fonts used in our game.<br>
      * Order these according to the file name in the "font" assets folder.
      */
@@ -46,9 +51,12 @@ public class Assets
         CancelDisabled, CancelEnabled,
         ConfirmDisabled, ConfirmEnabled,
         Fill, 
+        LevelNotSolved,
+        LevelSolved,
         Logo, 
         MenuDisabled, MenuEnabled,
         NumbersBeige, NumbersGreen, NumbersRed,
+        PageNext, PagePrevious,
         PauseDisabled, PauseEnabled, 
         SoundDisabled, SoundEnabled,
     }
@@ -67,6 +75,16 @@ public class Assets
     }
     
     /**
+     * The text file containing the solution of each level, keep in alphabet order
+     * @author GOD
+     *
+     */
+    public enum TextKey
+    {
+    	Easy, Expert, Hard, Normal, Twisted
+    }
+    
+    /**
      * Load all assets
      * @param activity Object containing AssetManager needed to load assets
      * @throws Exception 
@@ -81,6 +99,9 @@ public class Assets
         
         //load all audio
         Audio.load(activity, AudioKey.values(), DIRECTORY_AUDIO, true);
+        
+        //load all text files
+        Files.load(activity, TextKey.values(), DIRECTORY_TEXT, true);
     }
     
     /**
@@ -91,6 +112,7 @@ public class Assets
         Images.dispose();
         Font.dispose();
         Audio.dispose();
+        Files.dispose();
     }
     
     /**
@@ -101,14 +123,12 @@ public class Assets
         //pick random audio
         Assets.AudioKey key = GamePanel.RANDOM.nextBoolean() ? Assets.AudioKey.Song1 : Assets.AudioKey.Song2;
 
-        //make sure the other audio doesn't continue to play
-        if (key != Assets.AudioKey.Song1)
-            Audio.stop(Assets.AudioKey.Song1);
-        if (key != Assets.AudioKey.Song2)
-            Audio.stop(Assets.AudioKey.Song2);
+        //make no other songs are playing
+        Audio.stop(Assets.AudioKey.Song1);
+        Audio.stop(Assets.AudioKey.Song2);
         
         //set volume level
-        Audio.setVolume(key, 0.25f);
+        Audio.setVolume(key, 0.5f);
 
         //start to play the loop
         Audio.play(key, true);
