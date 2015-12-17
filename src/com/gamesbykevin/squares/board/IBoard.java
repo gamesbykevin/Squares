@@ -23,9 +23,10 @@ public interface IBoard extends Disposable
      * Reset the board at the assigned level
      * @param key The asset key for the desired text file
      * @param levelIndex The selected level to reset
+     * @param hint Do we reveal the solution to a row or column?
      * @throws Exception
      */
-    public void reset(final Assets.TextKey key, final int levelIndex) throws Exception;
+    public void reset(final Assets.TextKey key, final int levelIndex, final boolean hint) throws Exception;
     
     /**
      * Render the board

@@ -1,8 +1,10 @@
 package com.gamesbykevin.squares.game;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Vibrator;
 import android.view.MotionEvent;
 
 import com.gamesbykevin.androidframework.awt.Button;
@@ -92,6 +94,12 @@ public final class Game implements IGame
     //store difficulty setting
     private Difficulty difficulty;
     
+    //are we updating the board?
+    private boolean update = false;
+    
+    //the coordinates at which the update are made
+    private float updateX, updateY;
+    
     /**
      * For timed mode, the number of blocks will be a factor to determine the time remaining
      */
@@ -129,6 +137,11 @@ public final class Game implements IGame
     //do we stop the timer
     private boolean stopTimer = false;
     
+    /**
+     * The length to vibrate the phone when you beat a level
+     */
+    private static final long VIBRATION_DURATION = 500;
+    
     public Game(final MainScreen screen) throws Exception
     {
         //our main screen object reference
@@ -147,10 +160,10 @@ public final class Game implements IGame
         
         //create the level select screen
         this.levelSelect = new Select();
-        this.levelSelect.setButtonNext(new Button(Images.getImage(Assets.ImageKey.PageNext)));
-        this.levelSelect.setButtonOpen(new Button(Images.getImage(Assets.ImageKey.LevelNotSolved)));
-        this.levelSelect.setButtonPrevious(new Button(Images.getImage(Assets.ImageKey.PagePrevious)));
-        this.levelSelect.setButtonSolved(new Button(Images.getImage(Assets.ImageKey.LevelSolved)));
+        this.levelSelect.setButtonNext(new Button(Images.getImage(Assets.ImageGameKey.PageNext)));
+        this.levelSelect.setButtonOpen(new Button(Images.getImage(Assets.ImageGameKey.LevelNotSolved)));
+        this.levelSelect.setButtonPrevious(new Button(Images.getImage(Assets.ImageGameKey.PagePrevious)));
+        this.levelSelect.setButtonSolved(new Button(Images.getImage(Assets.ImageGameKey.LevelSolved)));
         this.levelSelect.setCols(5);
         this.levelSelect.setRows(8);
         this.levelSelect.setDimension(80);
@@ -263,28 +276,51 @@ public final class Game implements IGame
         switch (difficulty)
         {
 		    case Easy:
-		    	getBoard().reset(Assets.TextKey.Easy, getLevelSelect().getLevelIndex());
+		    	getBoard().reset(
+		    		Assets.TextKey.Easy, 
+		    		getLevelSelect().getLevelIndex(), 
+		    		screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_HINT) == 1
+		    	);
 		    	break;
 		    	
 		    case Normal:
-		    	getBoard().reset(Assets.TextKey.Normal, getLevelSelect().getLevelIndex());
+		    	getBoard().reset(
+		    		Assets.TextKey.Normal, 
+		    		getLevelSelect().getLevelIndex(), 
+		    		screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_HINT) == 1
+		    	);
 		    	break;
 		    	
 		    case Hard:
-		    	getBoard().reset(Assets.TextKey.Hard, getLevelSelect().getLevelIndex());
+		    	getBoard().reset(
+		    		Assets.TextKey.Hard, 
+		    		getLevelSelect().getLevelIndex(), 
+		    		screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_HINT) == 1
+		    	);
 		    	break;
 		    	
 		    case Expert:
-		    	getBoard().reset(Assets.TextKey.Expert, getLevelSelect().getLevelIndex());
+		    	getBoard().reset(
+		    		Assets.TextKey.Expert, 
+		    		getLevelSelect().getLevelIndex(), 
+		    		screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_HINT) == 1
+		    	);
 		    	break;
 		    	
 		    case Twisted:
-		    	getBoard().reset(Assets.TextKey.Twisted, getLevelSelect().getLevelIndex());
+		    	getBoard().reset(
+		    		Assets.TextKey.Twisted, 
+		    		getLevelSelect().getLevelIndex(), 
+		    		screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_HINT) == 1
+		    	);
 		    	break;
 		    	
 			default:
 				throw new Exception("Difficulty not setup here:" + difficulty.toString());
         }
+        
+        //flag update false
+        this.update = false;
         
         //reset the timer
         this.totalTime = 0;
@@ -361,6 +397,10 @@ public final class Game implements IGame
      */
     public void update(final MotionEvent event, final float x, final float y)
     {
+    	//if we are updating the board, we can't continue
+    	if (update)
+    		return;
+    	
     	//if we don't have a selection
     	if (!getLevelSelect().hasSelection())
     	{
@@ -375,45 +415,12 @@ public final class Game implements IGame
         //only update game if no controller buttons were clicked
         if (!getController().update(event, x, y))
         {
-            //if the board exists and the action is up
+            //if the board exists and the action is up, flag update true and store coordinates
             if (getBoard() != null && event.getAction() == MotionEvent.ACTION_UP)
             {
-                //do we have a match before updating
-                final boolean match = BoardHelper.hasMatch(getBoard());
-                
-                //update board
-                getBoard().update(x, y);
-                
-                //if we now have a match
-                if (!match && BoardHelper.hasMatch(getBoard()))
-                {
-                    //update the score card
-                    getScorecard().update(
-                		getLevelSelect().getLevelIndex(),
-                		screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_DIFFICULTY),
-                    	getTime()
-                    );
-                    
-                    //load the saved data
-                    for (int levelIndex = 0; levelIndex < getLevelSelect().getTotal(); levelIndex++)
-                    {
-                    	//get the score for the specified level and difficulty
-                    	Score score = getScorecard().getScore(levelIndex, screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_DIFFICULTY)); 
-                    	
-                    	//mark completed if the score object exists
-                    	getLevelSelect().setCompleted(levelIndex, (score != null));
-                    }
-                    
-                	
-                    //set game over state
-                    screen.setState(MainScreen.State.GameOver);
-                    
-                    //set display message
-                    screen.getScreenGameover().setMessage("Game Over, You win");
-                    
-                    //play sound
-                    Audio.play(Assets.AudioKey.GameoverWin);
-                }
+            	this.update = true;
+            	this.updateX = x;
+            	this.updateY = y;
             }
         }
     }
@@ -436,6 +443,63 @@ public final class Game implements IGame
     		//no need to continue
     		return;
     	}
+        
+        //if we are to update the board
+        if (update)
+        {
+            //do we have a match before updating
+            final boolean match = BoardHelper.hasMatch(getBoard());
+            
+            //update board
+            getBoard().update(updateX, updateY);
+            
+        	//we are complete with our update
+        	update = false;
+        	
+            //if we now have a match
+            if (!match && BoardHelper.hasMatch(getBoard()))
+            {
+                //update the score card
+                getScorecard().update(
+            		getLevelSelect().getLevelIndex(),
+            		screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_DIFFICULTY),
+                	getTime()
+                );
+                
+                //load the saved data
+                for (int levelIndex = 0; levelIndex < getLevelSelect().getTotal(); levelIndex++)
+                {
+                	//get the score for the specified level and difficulty
+                	Score score = getScorecard().getScore(levelIndex, screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_DIFFICULTY)); 
+                	
+                	//mark completed if the score object exists
+                	getLevelSelect().setCompleted(levelIndex, (score != null));
+                }
+                
+            	
+                //set game over state
+                screen.setState(MainScreen.State.GameOver);
+                
+                //set display message
+                screen.getScreenGameover().setMessage("Game Over, You win");
+                
+                //play sound
+                Audio.play(Assets.AudioGameKey.GameoverWin);
+                
+        		//make sure vibrate is enabled
+        		if (getMainScreen().getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_VIBRATE) == 0)
+        		{
+	        		//get our vibrate object
+	        		Vibrator v = (Vibrator) getMainScreen().getPanel().getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+	        		 
+					//vibrate for a specified amount of milliseconds
+					v.vibrate(VIBRATION_DURATION);
+        		}
+                
+                //no need to continue
+                return;
+            }
+        }
     	
         //if we stopped the timer, record the previous time
         if (this.stopTimer)
@@ -470,7 +534,7 @@ public final class Game implements IGame
                     screen.setState(MainScreen.State.GameOver);
                     
                     //play sound
-                    Audio.play(Assets.AudioKey.GameoverLose);
+                    Audio.play(Assets.AudioGameKey.GameoverLose);
                     
                     //set display message
                     screen.getScreenGameover().setMessage("Time up, You lose");

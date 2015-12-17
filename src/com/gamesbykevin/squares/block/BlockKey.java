@@ -56,9 +56,9 @@ public class BlockKey extends Entity
                 final int y = row * DEFAULT_DIMENSION;
                 
                 //assign animations
-                super.getSpritesheet().add(KeyValid.values()[index], new Animation(Images.getImage(Assets.ImageKey.NumbersGreen), x, y, DEFAULT_DIMENSION, DEFAULT_DIMENSION));
-                super.getSpritesheet().add(KeyInValid.values()[index], new Animation(Images.getImage(Assets.ImageKey.NumbersRed), x, y, DEFAULT_DIMENSION, DEFAULT_DIMENSION));
-                super.getSpritesheet().add(KeyStart.values()[index], new Animation(Images.getImage(Assets.ImageKey.NumbersBeige), x, y, DEFAULT_DIMENSION, DEFAULT_DIMENSION));
+                super.getSpritesheet().add(KeyValid.values()[index], new Animation(Images.getImage(Assets.ImageGameKey.NumbersGreen), x, y, DEFAULT_DIMENSION, DEFAULT_DIMENSION));
+                super.getSpritesheet().add(KeyInValid.values()[index], new Animation(Images.getImage(Assets.ImageGameKey.NumbersRed), x, y, DEFAULT_DIMENSION, DEFAULT_DIMENSION));
+                super.getSpritesheet().add(KeyStart.values()[index], new Animation(Images.getImage(Assets.ImageGameKey.NumbersBeige), x, y, DEFAULT_DIMENSION, DEFAULT_DIMENSION));
                 
                 index++;
             }

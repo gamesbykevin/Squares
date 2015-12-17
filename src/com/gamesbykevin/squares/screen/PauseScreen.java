@@ -45,7 +45,7 @@ public class PauseScreen implements Screen, Disposable
         this.paint = new Paint();
         this.paint.setColor(Color.WHITE);
         this.paint.setTextSize(64f);
-        this.paint.setTypeface(Font.getFont(Assets.FontKey.Default));
+        this.paint.setTypeface(Font.getFont(Assets.FontMenuKey.Default));
         
         //create temporary rectangle
         Rect tmp = new Rect();

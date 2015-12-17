@@ -29,6 +29,16 @@ public class MainActivity extends Activity
      */
     public static final String WEBPAGE_GAME_INSTRUCTIONS_URL = "http://gamesbykevin.com/2015/10/01/squares/";
     
+    /**
+     * The face book url
+     */
+    public static final String WEBPAGE_FACEBOOK_URL = "http://facebook.com/gamesbykevin";
+    
+    /**
+     * The twitter url
+     */
+    public static final String WEBPAGE_TWITTER_URL = "http://twitter.com/gamesbykevin";
+    
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)

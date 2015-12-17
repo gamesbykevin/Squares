@@ -37,7 +37,7 @@ public class ExitScreen implements Screen, Disposable
     private Paint paint;
     
     //all of the buttons for the player to control
-    private HashMap<Assets.ImageKey, Button> buttons;
+    private HashMap<Assets.ImageMenuKey, Button> buttons;
     
     public ExitScreen(final MainScreen screen)
     {
@@ -48,7 +48,7 @@ public class ExitScreen implements Screen, Disposable
         this.paint = new Paint();
         this.paint.setColor(Color.WHITE);
         this.paint.setTextSize(36F);
-        this.paint.setTypeface(Font.getFont(Assets.FontKey.Default));
+        this.paint.setTypeface(Font.getFont(Assets.FontMenuKey.Default));
         
         //create temporary rectangle
         Rect tmp = new Rect();
@@ -61,25 +61,25 @@ public class ExitScreen implements Screen, Disposable
         pixelH = tmp.height();
         
         //create buttons
-        this.buttons = new HashMap<Assets.ImageKey, Button>();
-        this.buttons.put(Assets.ImageKey.CancelDisabled, new Button(Images.getImage(Assets.ImageKey.CancelDisabled)));
-        this.buttons.put(Assets.ImageKey.CancelEnabled, new Button(Images.getImage(Assets.ImageKey.CancelEnabled)));
-        this.buttons.put(Assets.ImageKey.ConfirmDisabled, new Button(Images.getImage(Assets.ImageKey.ConfirmDisabled)));
-        this.buttons.put(Assets.ImageKey.ConfirmEnabled, new Button(Images.getImage(Assets.ImageKey.ConfirmEnabled)));
+        this.buttons = new HashMap<Assets.ImageMenuKey, Button>();
+        this.buttons.put(Assets.ImageMenuKey.CancelDisabled, new Button(Images.getImage(Assets.ImageMenuKey.CancelDisabled)));
+        this.buttons.put(Assets.ImageMenuKey.CancelEnabled, new Button(Images.getImage(Assets.ImageMenuKey.CancelEnabled)));
+        this.buttons.put(Assets.ImageMenuKey.ConfirmDisabled, new Button(Images.getImage(Assets.ImageMenuKey.ConfirmDisabled)));
+        this.buttons.put(Assets.ImageMenuKey.ConfirmEnabled, new Button(Images.getImage(Assets.ImageMenuKey.ConfirmEnabled)));
         
         //position
         final int x = 50;
         final int y = 450;
         
         //position buttons
-        this.buttons.get(Assets.ImageKey.ConfirmDisabled).setX(x);
-        this.buttons.get(Assets.ImageKey.ConfirmDisabled).setY(y);
-        this.buttons.get(Assets.ImageKey.ConfirmEnabled).setX(x);
-        this.buttons.get(Assets.ImageKey.ConfirmEnabled).setY(y);
-        this.buttons.get(Assets.ImageKey.CancelDisabled).setX(x + 273);
-        this.buttons.get(Assets.ImageKey.CancelDisabled).setY(y);
-        this.buttons.get(Assets.ImageKey.CancelEnabled).setX(x + 273);
-        this.buttons.get(Assets.ImageKey.CancelEnabled).setY(y);
+        this.buttons.get(Assets.ImageMenuKey.ConfirmDisabled).setX(x);
+        this.buttons.get(Assets.ImageMenuKey.ConfirmDisabled).setY(y);
+        this.buttons.get(Assets.ImageMenuKey.ConfirmEnabled).setX(x);
+        this.buttons.get(Assets.ImageMenuKey.ConfirmEnabled).setY(y);
+        this.buttons.get(Assets.ImageMenuKey.CancelDisabled).setX(x + 273);
+        this.buttons.get(Assets.ImageMenuKey.CancelDisabled).setY(y);
+        this.buttons.get(Assets.ImageMenuKey.CancelEnabled).setX(x + 273);
+        this.buttons.get(Assets.ImageMenuKey.CancelEnabled).setY(y);
         
         //adjust the dimensions of each image
         for (Button button : buttons.values())
@@ -104,24 +104,24 @@ public class ExitScreen implements Screen, Disposable
     {
         if (event.getAction() == MotionEvent.ACTION_UP)
         {
-            if (buttons.get(Assets.ImageKey.CancelEnabled).contains(x, y))
+            if (buttons.get(Assets.ImageMenuKey.CancelEnabled).contains(x, y))
             {
                 //if cancel, go back to game
                 screen.setState(MainScreen.State.Running);
                 
                 //play sound effect
-                Audio.play(Assets.AudioKey.MenuSeletion);
+                Audio.play(Assets.AudioMenuKey.Selection);
                 
                 //return true;
                 return false;
             }
-            else if (buttons.get(Assets.ImageKey.ConfirmEnabled).contains(x, y))
+            else if (buttons.get(Assets.ImageMenuKey.ConfirmEnabled).contains(x, y))
             {
                 //if confirm, go back to menu
                 screen.setState(MainScreen.State.Ready);
                 
                 //play sound effect
-                Audio.play(Assets.AudioKey.MenuSeletion);
+                Audio.play(Assets.AudioMenuKey.Selection);
                 
                 //return true;
                 return false;
@@ -153,13 +153,13 @@ public class ExitScreen implements Screen, Disposable
         switch (screen.getState())
         {
             case Paused:
-                buttons.get(Assets.ImageKey.ConfirmDisabled).render(canvas);
-                buttons.get(Assets.ImageKey.CancelDisabled).render(canvas);
+                buttons.get(Assets.ImageMenuKey.ConfirmDisabled).render(canvas);
+                buttons.get(Assets.ImageMenuKey.CancelDisabled).render(canvas);
                 break;
                 
             default:
-                buttons.get(Assets.ImageKey.ConfirmEnabled).render(canvas);
-                buttons.get(Assets.ImageKey.CancelEnabled).render(canvas);
+                buttons.get(Assets.ImageMenuKey.ConfirmEnabled).render(canvas);
+                buttons.get(Assets.ImageMenuKey.CancelEnabled).render(canvas);
                 break;
         }
     }

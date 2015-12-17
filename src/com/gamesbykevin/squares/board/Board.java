@@ -126,9 +126,11 @@ public final class Board extends Entity implements IBoard
      * Reset the board
      * @param key They key of the text file asset containing the levels
      * @param levelIndex The desired level
+     * @param hint Do we reveal the solution to a row or column?
      * @throws Exception
      */
-    public final void reset(final Assets.TextKey key, final int levelIndex) throws Exception
+    @Override
+    public final void reset(final Assets.TextKey key, final int levelIndex, final boolean hint) throws Exception
     {
     	//default to filling the pegs
     	this.fill = true;
@@ -179,6 +181,42 @@ public final class Board extends Entity implements IBoard
             	if (tmp >= range)
             		range = tmp + 1;
             }
+        }
+        
+        //if we have a hint enabled
+        if (hint)
+        {
+        	//decide if we reveal a row or column
+        	if (GamePanel.RANDOM.nextBoolean())
+        	{
+        		//we will reveal a row
+        		final int row = GamePanel.RANDOM.nextInt(getRows());
+        		
+        		//reveal every column in the row
+                for (int col  = 0; col < getCols(); col++)
+                {
+                    getPlayer()[row][col] = getSolution()[row][col];
+                    
+                    //if 0 lets flag this one
+                    if (getPlayer()[row][col] == 0)
+                    	getFlagged()[row][col] = true;
+                }
+        	}
+        	else
+        	{
+        		//we will reveal a column
+        		final int col = GamePanel.RANDOM.nextInt(getCols());
+        		
+        		//reveal every row in the column
+                for (int row = 0; row < getRows(); row++)
+                {
+                	getPlayer()[row][col] = getSolution()[row][col];
+                	
+                    //if 0 lets flag this one
+                    if (getPlayer()[row][col] == 0)
+                    	getFlagged()[row][col] = true;
+                }
+        	}
         }
         
         //set dimension accordingly
@@ -258,7 +296,6 @@ public final class Board extends Entity implements IBoard
      */
     public void update(final float x, final float y)
     {
-    	
         //render the pegs
         for (int row = 0; row < getRows(); row++)
         {

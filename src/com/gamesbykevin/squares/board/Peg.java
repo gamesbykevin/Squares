@@ -54,7 +54,7 @@ public final class Peg extends Entity
                 final int y = row * DEFAULT_DIMENSION;
                 
                 //create animation
-                Animation animation = new Animation(Images.getImage(Assets.ImageKey.Fill), x, y, DEFAULT_DIMENSION, DEFAULT_DIMENSION);
+                Animation animation = new Animation(Images.getImage(Assets.ImageGameKey.Fill), x, y, DEFAULT_DIMENSION, DEFAULT_DIMENSION);
                 
                 //assign animation
                 getSpritesheet().add(Fill.values()[index], animation);

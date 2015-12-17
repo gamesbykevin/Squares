@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.SparseArray;
 import android.view.MotionEvent;
 import com.gamesbykevin.androidframework.awt.Button;
 import com.gamesbykevin.androidframework.resources.Audio;
@@ -25,16 +26,13 @@ public class GameoverScreen implements Screen, Disposable
     private final MainScreen screen;
     
     //object to paint background
-    private Paint paint, paintButton;
+    private Paint paintMessage, paint;
     
     //the message to display
     private String message = "";
     
-    //the dimensions of the text message
-    private int pixelW;
-    
-    //buttons
-    private Button next, mainmenu, rateapp;
+    //where we draw the image
+    private int messageX = 0, messageY = 0;
     
     //time we have displayed text
     private long time;
@@ -47,6 +45,15 @@ public class GameoverScreen implements Screen, Disposable
     //do we display the menu
     private boolean display = false;
     
+    //list of buttons
+    private SparseArray<Button> buttons;
+    
+    //buttons to access each button list
+    public static final int INDEX_BUTTON_NEW = 0;
+    public static final int INDEX_BUTTON_REPLAY = 1;
+    public static final int INDEX_BUTTON_MENU = 2;
+    public static final int INDEX_BUTTON_RATE = 3;
+    public static final int INDEX_BUTTON_LEVEL_SELECT = 4;
     
     public GameoverScreen(final MainScreen screen)
     {
@@ -54,42 +61,64 @@ public class GameoverScreen implements Screen, Disposable
         this.screen = screen;
         
         //create new paint object
-        this.paintButton = new Paint();
+        this.paint = new Paint();
         
         //set the text size
-        this.paintButton.setTextSize(24f);
+        this.paint.setTextSize(24f);
         
         //set the color
-        this.paintButton.setColor(Color.WHITE);
+        this.paint.setColor(Color.WHITE);
         
-        final int x = 110;
-        int y = 75;
-        final int addY = 100;
+        //the start location
+        final int x = MainScreen.BUTTON_X;
+        int y = MainScreen.BUTTON_Y;
 
+        //create a list of buttons
+        this.buttons = new SparseArray<Button>();
+        
         //create our buttons
-        y += addY;
-        this.next = new Button(Images.getImage(Assets.ImageKey.Button));
-        this.next.setX(x);
-        this.next.setY(y);
-        this.next.updateBounds();
-        this.next.addDescription("Next");
-        this.next.positionText(paintButton);
+        addButton(x, y, INDEX_BUTTON_NEW, "Next");
+
+        y += MainScreen.BUTTON_Y_INCREMENT;
+        addButton(x, y, INDEX_BUTTON_REPLAY, "Replay");
         
-        y += addY;
-        this.mainmenu = new Button(Images.getImage(Assets.ImageKey.Button));
-        this.mainmenu.setX(x);
-        this.mainmenu.setY(y);
-        this.mainmenu.updateBounds();
-        this.mainmenu.addDescription("Menu");
-        this.mainmenu.positionText(paintButton);
+        y += MainScreen.BUTTON_Y_INCREMENT;
+        addButton(x, y, INDEX_BUTTON_LEVEL_SELECT, "Level Select");
         
-        y += addY;
-        this.rateapp = new Button(Images.getImage(Assets.ImageKey.Button));
-        this.rateapp.setX(x);
-        this.rateapp.setY(y);
-        this.rateapp.updateBounds();
-        this.rateapp.addDescription(MenuScreen.BUTTON_TEXT_RATE_APP);
-        this.rateapp.positionText(paintButton);
+        y += MainScreen.BUTTON_Y_INCREMENT;
+        addButton(x, y, INDEX_BUTTON_MENU, "Menu");
+        
+        y += MainScreen.BUTTON_Y_INCREMENT;
+        addButton(x, y, INDEX_BUTTON_RATE, MenuScreen.BUTTON_TEXT_RATE_APP);
+    }
+    
+    /**
+     * Add button to our list
+     * @param x desired x-coordinate
+     * @param y desired y-coordinate
+     * @param index Position to place in our array list
+     * @param description The text description to add
+     */
+    private void addButton(final int x, final int y, final int index, final String description)
+    {
+    	//create new button
+    	Button button = new Button(Images.getImage(Assets.ImageMenuKey.Button));
+    	
+    	//position the button
+    	button.setX(x);
+    	button.setY(y);
+    	
+    	//assign the dimensions
+    	button.setWidth(MenuScreen.BUTTON_WIDTH);
+    	button.setHeight(MenuScreen.BUTTON_HEIGHT);
+    	button.updateBounds();
+    	
+    	//add the text description
+    	button.addDescription(description);
+    	button.positionText(paint);
+    	
+    	//add button to the list
+    	this.buttons.put(index, button);
     }
     
     /**
@@ -102,7 +131,25 @@ public class GameoverScreen implements Screen, Disposable
         time = System.currentTimeMillis();
         
         //do we display the menu
-        display = false;
+        setDisplay(false);
+    }
+    
+    /**
+     * Flag display
+     * @param display true if we want to display the buttons, false otherwise
+     */
+    private void setDisplay(final boolean display)
+    {
+    	this.display = display;
+    }
+    
+    /**
+     * Do we display the buttons?
+     * @return true = yes, false = no
+     */
+    private boolean hasDisplay()
+    {
+    	return this.display;
     }
     
     /**
@@ -118,71 +165,120 @@ public class GameoverScreen implements Screen, Disposable
         Rect tmp = new Rect();
         
         //create paint text object for the message
-        if (paint == null)
-            paint = new Paint();
-        
-        //assign metrics
-        paint.setColor(Color.WHITE);
-        paint.setTextSize(34f);
-        paint.setTypeface(Font.getFont(Assets.FontKey.Default));
+        if (paintMessage == null)
+        {
+            //assign metrics
+        	paintMessage = new Paint();
+        	paintMessage.setColor(Color.WHITE);
+	        paintMessage.setTextSize(34f);
+	        paintMessage.setTypeface(Font.getFont(Assets.FontMenuKey.Default));
+        }
         
         //get the rectangle around the message
-        paint.getTextBounds(message, 0, message.length(), tmp);
+        paintMessage.getTextBounds(message, 0, message.length(), tmp);
         
-        //store the dimensions
-        pixelW = tmp.width();
+        //calculate the position of the message
+        this.messageX = (GamePanel.WIDTH / 2) - (tmp.width() / 2);
+        this.messageY = (int)(GamePanel.HEIGHT * .12);
     }
     
     @Override
     public boolean update(final MotionEvent event, final float x, final float y) throws Exception
     {
         //if we aren't displaying the menu, return false
-        if (!display)
+        if (!hasDisplay())
             return false;
         
         if (event.getAction() == MotionEvent.ACTION_UP)
         {
-            if (next.contains(x, y))
-            {
-                //stop sound
-                Audio.stop();
+        	for (int index = 0; index < buttons.size(); index++)
+        	{
+        		//get the current button
+        		Button button = buttons.get(index);
+        		
+        		//if we did not click this button skip to the next
+        		if (!button.contains(x, y))
+        			continue;
+        		
+                //remove message
+                setMessage("");
                 
-                //move back to the game
-                screen.setState(MainScreen.State.Running);
-                
-                //play sound effect
-                Audio.play(Assets.AudioKey.MenuSeletion);
-                
-                //move to the next level
-                screen.getScreenGame().getGame().getLevelSelect().setLevelIndex(
-                	screen.getScreenGame().getGame().getLevelSelect().getLevelIndex() + 1
-                );
-                
-                //restart game with the same settings
-                screen.getScreenGame().getGame().reset();
-            }
-            else if (mainmenu.contains(x, y))
-            {
-                //stop sound
-                Audio.stop();
-                
-                //play sound effect
-                Audio.play(Assets.AudioKey.MenuSeletion);
-                
-                //move to the main menu
-                screen.setState(MainScreen.State.Ready);
-            }
-            else if (rateapp.contains(x, y))
-            {
-                //stop sound
-                Audio.stop();
-                
-                //play sound effect
-                Audio.play(Assets.AudioKey.MenuSeletion);
-                
-                //go to rate game page
-                screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_RATE_URL);
-            }
+        		//handle each button different
+        		switch (index)
+        		{
+	        		case INDEX_BUTTON_LEVEL_SELECT:
+	        			
+	        			//mark that we have not made a selection
+	        			screen.getScreenGame().getGame().getLevelSelect().setSelection(false);
+	        			
+	                    //move back to the game
+	                    screen.setState(MainScreen.State.Running);
+	                    
+	                    //play sound effect
+	                    Audio.play(Assets.AudioMenuKey.Selection);
+	        			
+	                    //we don't request additional motion events
+	                    return false;
+        		
+	        		case INDEX_BUTTON_NEW:
+	        			
+	                    //move to the next level
+	                    screen.getScreenGame().getGame().getLevelSelect().setLevelIndex(
+	                    	screen.getScreenGame().getGame().getLevelSelect().getLevelIndex() + 1
+	                    );
+	                    
+	                    //reset with the same settings
+	                    screen.getScreenGame().getGame().reset();
+	                    
+	                    //move back to the game
+	                    screen.setState(MainScreen.State.Running);
+	                    
+	                    //play sound effect
+	                    Audio.play(Assets.AudioMenuKey.Selection);
+	                    
+	                    //we don't request additional motion events
+	                    return false;
+
+	        		case INDEX_BUTTON_REPLAY:
+	                    
+	                    //reset with the same settings
+	                    screen.getScreenGame().getGame().reset();
+	                    
+	                    //move back to the game
+	                    screen.setState(MainScreen.State.Running);
+	                    
+	                    //play sound effect
+	                    Audio.play(Assets.AudioMenuKey.Selection);
+	                    
+	                    //we don't request additional motion events
+	                    return false;
+	        			
+	        		case INDEX_BUTTON_MENU:
+	                    
+	                    //move to the main menu
+	                    screen.setState(MainScreen.State.Ready);
+	                    
+	                    //play sound effect
+	                    Audio.play(Assets.AudioMenuKey.Selection);
+	                    
+	                    //we don't request additional motion events
+	                    return false;
+	        			
+	        		case INDEX_BUTTON_RATE:
+	                    
+	                    //play sound effect
+	                    Audio.play(Assets.AudioMenuKey.Selection);
+	                    
+	                    //go to rate game page
+	                    screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_RATE_URL);
+	                    
+	                    //we don't request additional motion events
+	                    return false;
+	        			
+        			default:
+        				throw new Exception("Index not setup here: " + index);
+        		}
+        	}
         }
         
         //no action was taken here
@@ -193,13 +289,13 @@ public class GameoverScreen implements Screen, Disposable
     public void update() throws Exception
     {
         //if not displaying the menu, track timer
-        if (!display)
+        if (!hasDisplay())
         {
             //if time has passed display menu
             if (System.currentTimeMillis() - time >= DELAY_MENU_DISPLAY)
             {
             	//flag true
-                display = true;
+                setDisplay(true);
             }
         }
     }
@@ -208,24 +304,22 @@ public class GameoverScreen implements Screen, Disposable
     public void render(final Canvas canvas) throws Exception
     {
         //do we display the menu
-        if (display)
+        if (hasDisplay())
         {
-        	//darken background
-        	MainScreen.darkenBackground(canvas, MainScreen.ALPHA_DARK);
-        	
-            //render buttons
-            next.render(canvas, paintButton);
-            rateapp.render(canvas, paintButton);
-            mainmenu.render(canvas, paintButton);
-            
-            if (paint != null)
+            if (hasDisplay())
             {
-                //calculate middle
-                final int x = (GamePanel.WIDTH / 2) - (pixelW / 2);
-                final int y = (int)(GamePanel.HEIGHT * .15);
-                 
-                //draw text
-                canvas.drawText(this.message, x, y, paint);
+                //only darken the background when the menu is displayed
+            	MainScreen.darkenBackground(canvas);
+                
+                //if message exists, draw the text
+                if (paintMessage != null)
+                    canvas.drawText(this.message, messageX, messageY, paintMessage);
+            
+                //render the buttons
+                for (int index = 0; index < buttons.size(); index++)
+                {
+                	buttons.get(index).render(canvas, paint);
+                }
             }
         }
     }
@@ -233,28 +327,25 @@ public class GameoverScreen implements Screen, Disposable
     @Override
     public void dispose()
     {
+        if (paintMessage != null)
+        	paintMessage = null;
+        
         if (paint != null)
-            paint = null;
+        	paint = null;
         
-        if (paintButton != null)
-            paintButton = null;
-        
-        if (next != null)
+        if (buttons != null)
         {
-            next.dispose();
-            next = null;
-        }
-        
-        if (mainmenu != null)
-        {
-            mainmenu.dispose();
-            mainmenu = null;
-        }
-        
-        if (rateapp != null)
-        {
-            rateapp.dispose();
-            rateapp = null;
+	        for (int index = 0; index < buttons.size(); index++)
+	        {
+	        	if (buttons.get(index) != null)
+	        	{
+	        		buttons.get(index).dispose();
+	        		buttons.setValueAt(index, null);
+	        	}
+	        }
+	        
+	        buttons.clear();
+	        buttons = null;
         }
     }
 }

@@ -10,7 +10,6 @@ import com.gamesbykevin.androidframework.resources.Audio;
 import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.androidframework.screen.Screen;
-
 import com.gamesbykevin.squares.assets.Assets;
 import com.gamesbykevin.squares.panel.GamePanel;
 
@@ -50,7 +49,27 @@ public final class MainScreen implements Screen, Disposable
     /**
      * The y-coordinate where we want the logo to be displayed
      */
-    public static final int LOGO_Y = 40;
+    public static final int LOGO_Y = 15;
+    
+    /**
+     * The x-coordinate where we want to start putting the buttons
+     */
+    public static final int BUTTON_X = 90;
+    
+    /**
+     * The y-coordinate where we want to start putting the buttons
+     */
+    public static final int BUTTON_Y = 140;
+    
+    /**
+     * The y-coordinate spacing between each button
+     */
+    public static final int BUTTON_Y_INCREMENT = MenuScreen.BUTTON_HEIGHT + (int)(MenuScreen.BUTTON_HEIGHT * .5);
+    
+    /**
+     * The x-coordinate spacing between each button
+     */
+    public static final int BUTTON_X_INCREMENT = 0;
     
     /**
      * The alpha visibility to apply when darkening the background
@@ -72,8 +91,8 @@ public final class MainScreen implements Screen, Disposable
         this.background.setWidth(GamePanel.WIDTH);
         this.background.setHeight(GamePanel.HEIGHT);
 
-        //add animation to spritesheet
-        this.background.getSpritesheet().add(Assets.ImageKey.Background, new Animation(Images.getImage(Assets.ImageKey.Background)));
+        //add animation to sprite sheet
+        this.background.getSpritesheet().add(Assets.ImageMenuKey.Background, new Animation(Images.getImage(Assets.ImageMenuKey.Background)));
         
         //store our game panel reference
         this.panel = panel;
@@ -81,7 +100,7 @@ public final class MainScreen implements Screen, Disposable
         //default to the ready state
         this.state = State.Ready;
         
-        //create new hashmap
+        //create new hash map
         this.screens = new HashMap<State, Screen>();
         this.screens.put(State.Ready, new MenuScreen(this));
         this.screens.put(State.Paused, new PauseScreen(this));
@@ -160,16 +179,15 @@ public final class MainScreen implements Screen, Disposable
             getScreen(state).reset();
         }
         
+    	//stop any playing sound
+    	Audio.stop();
+    	
         //if not in the running state, stop timer
         if (state != State.Running)
         {
             //stop the timer
             if (getScreenGame().getGame() != null)
                 getScreenGame().getGame().stopTimer();
-            
-            //if we were previously running stop audio
-            if (getState() == State.Running)
-                Audio.stop();
         }
         else
         {
@@ -198,8 +216,10 @@ public final class MainScreen implements Screen, Disposable
             switch (getState())
             {
                 case Ready:
-                    //darken background
-                    darkenBackground(canvas);
+                	
+                	//darken the background if the game exists
+                	if (getScreenGame().getGame() != null)
+                		darkenBackground(canvas);
                     
                     //draw menu
                     if (getScreen(getState()) != null)
@@ -222,8 +242,9 @@ public final class MainScreen implements Screen, Disposable
                     break;
 
                 case Options:
-                    //darken background
-                    darkenBackground(canvas);
+                	//darken the background if the game exists
+                	if (getScreenGame().getGame() != null)
+                		darkenBackground(canvas);
                     
                     if (getScreen(getState()) != null)
                         getScreen(getState()).render(canvas);
